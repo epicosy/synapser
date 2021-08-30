@@ -1,0 +1,10 @@
+cement==3.0.4
+jinja2
+pyyaml
+colorlog
+pytest~=6.2.4
+synapser~=0.0.1
+setuptools~=57.0.0
+Flask~=2.0.1
+psutil~=5.8.0
+SQLAlchemy~=1.4.23

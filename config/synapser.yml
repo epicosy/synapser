@@ -1,0 +1,57 @@
+### synapser Configuration Settings
+---
+
+synapser:
+
+### Toggle application level debug (does not toggle framework debugging)
+  debug: false
+
+### Where external (third-party) plugins are loaded from
+  plugin_dir: /var/lib/synapser/plugins/
+
+### Where all plugin configurations are loaded from
+  plugin_config_dir: /etc/synapser/plugins.d/
+
+### Where external templates are loaded from
+# template_dir: /var/lib/synapser/templates/
+
+### The log handler label
+  log_handler: colorlog
+
+### The output handler label
+  output_handler: jinja2
+
+### Database configs
+  dialect: 'postgresql'
+  username: 'synapser'
+  password: 'synapser123'
+  host: 'localhost'
+  port: '5432'
+  database: 'synapser'
+
+
+log.colorlog:
+
+### Where the log file lives (no log file by default)
+  file: '/tmp/synapser.log'
+
+### Whether or not to log the database queries
+  database: false
+
+### The level for which to log.  One of: info, warning, error, fatal, debug
+  level: debug
+
+### Whether or not to log to console
+  to_console: true
+
+### Whether or not to rotate the log file when it reaches `max_bytes`
+  rotate: false
+
+### Max size in bytes that a log file can grow until it is rotated.
+  max_bytes: 512000
+
+### The maximun number of log files to maintain when rotating
+  max_files: 4
+
+plugins.tool.genprog:
+  enabled: true
