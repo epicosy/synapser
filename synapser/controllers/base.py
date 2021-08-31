@@ -36,7 +36,7 @@ class Base(Controller):
         help='Launches the server API'
     )
     def api(self):
-        self.app.api.run(debug=True)
+        self.app.api.run(debug=True, port=self.app.get_config('port'))
 
     @ex(
         help='Test command wrapper',

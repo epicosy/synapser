@@ -3,10 +3,10 @@ jinja2
 pyyaml
 colorlog
 pytest~=6.2.4
-synapser~=0.0.1
 setuptools~=57.0.0
 Flask~=2.0.1
 flask-marshmallow~=0.14.0
 psutil~=5.8.0
 SQLAlchemy~=1.4.23
 psycopg2~=2.9.1
+requests~=2.26.0
