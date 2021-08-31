@@ -8,7 +8,7 @@ apt install -y software-properties-common
 add-apt-repository ppa:deadsnakes/ppa -y
 
 # Install Python 3.8.10
-apt install python3.8
+apt install -y python3.8
 [[ $? -eq 1 ]] && echo "[Error] Failed to install Python 3.8.10" && exit 1 ;
 
 # Set default version of Python 3 to 3.8.10
