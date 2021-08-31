@@ -1,5 +1,7 @@
 #!/bin/bash
-export TZ=Europe
+
+# Setting Timezone
+DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 apt-get update
 apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libbz2-dev curl lzma-dev liblzma-dev

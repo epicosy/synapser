@@ -1,5 +1,7 @@
 #!/bin/bash
-export TZ=Europe
+
+# Setting Timezone
+DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 apt-get install -y postgresql libpq-dev && pip3 install -r requirements.txt
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser dependencies." && exit 1 ;
