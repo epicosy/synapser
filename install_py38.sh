@@ -8,15 +8,15 @@ apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-de
 [[ $? -eq 1 ]] && echo "[Error] Failed to install dependencies" && exit 1 ;
 
 # Install OpenSSL version for pip
-cd /tmp && wget https://www.openssl.org/source/openssl-1.1.0g.tar.gz
-[[ $? -eq 1 ]] && echo "[Error] Failed to download OpenSSL 1.1.0" && exit 1 ;
-tar -zxf openssl-1.1.0g.tar.gz
-[[ $? -eq 1 ]] && echo "[Error] Failed to extract OpenSSL 1.1.0 tar" && exit 1 ;
-cd openssl-1.1.0g && ./config && make -j4
-[[ $? -eq 1 ]] && echo "[Error] Failed to build OpenSSL 1.1.0" && exit 1 ;
+cd /tmp && wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+[[ $? -eq 1 ]] && echo "[Error] Failed to download OpenSSL 1.1.1" && exit 1 ;
+tar -zxf openssl-1.1.1g.tar.gz
+[[ $? -eq 1 ]] && echo "[Error] Failed to extract OpenSSL 1.1.1 tar" && exit 1 ;
+cd openssl-1.1.1g && ./config && make -j4
+[[ $? -eq 1 ]] && echo "[Error] Failed to build OpenSSL 1.1.1" && exit 1 ;
 mv /usr/bin/openssl /tmp
 make install && ln -s /usr/local/bin/openssl /usr/bin/openssl && ldconfig
-[[ $? -eq 1 ]] && echo "[Error] Failed to install OpenSSL 1.1.0" && exit 1 ;
+[[ $? -eq 1 ]] && echo "[Error] Failed to install OpenSSL 1.1.1" && exit 1 ;
 
 
 # Install Python 3.8.10
