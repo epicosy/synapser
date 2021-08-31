@@ -12,7 +12,6 @@ apt install -y python3.8
 [[ $? -eq 1 ]] && echo "[Error] Failed to install Python 3.8.10" && exit 1 ;
 
 # Set default version of Python 3 to 3.8.10
-cp /usr/local/bin/python3.8 /usr/bin
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 2
 [[ $? -eq 1 ]] && echo "[Error] Failed to set default version of Python 3 to 3.8.10" && exit 1 ;
 

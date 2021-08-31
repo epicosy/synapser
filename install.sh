@@ -10,7 +10,7 @@ pip3 install .
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser." && exit 1 ;
 
 # Init DB
-su -l postgres -c "/etc/init.d/postgresql start && psql --command \"CREATE USER synapser WITH SUPERUSER PASSWORD 'synapser123';\" && createdb synapser && exit"
+su -l postgres -c "/etc/init.d/postgresql start && psql --command \"CREATE USER synapser WITH SUPERUSER PASSWORD 'synapser123';\" && createdb synapser"
 
 #Configs
 config_path="/etc/synapser"
