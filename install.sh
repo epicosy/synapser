@@ -19,5 +19,6 @@ exit
 #Configs
 config_path="/etc/synapser"
 config_plugin_path="/etc/synapser/plugin"
-mkdir -p $config_path && cp "config/synapser.yml" $config_path && mkdir -p $config_plugin_path
+plugins_path="/var/lib/synapser/plugin/tool"
+mkdir -p $config_path && cp "config/synapser.yml" $config_path && mkdir -p $config_plugin_path && mkdir -p $plugins_path
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser configs." && exit 1 ;
