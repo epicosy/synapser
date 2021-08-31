@@ -1,4 +1,5 @@
 #!/bin/bash
+export TZ=Europe
 
 apt-get install -y postgresql libpq-dev && pip3 install -r requirements.txt
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser dependencies." && exit 1 ;
