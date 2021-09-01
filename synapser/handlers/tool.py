@@ -29,6 +29,10 @@ class ToolHandler(CommandHandler):
     def repair(self, compiler_command: str, test_command: str, timeout: int, **kwargs) -> CommandData:
         pass
 
+    @abstractmethod
+    def help(self) -> CommandData:
+        pass
+
     def get_diff(self, original: Path, patch: Path) -> Diff:
         command_handler = self.app.handler.get('commands', 'command', setup=True)
         command_handler.log = False

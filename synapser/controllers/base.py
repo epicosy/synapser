@@ -36,7 +36,7 @@ class Base(Controller):
         help='Launches the server API',
         arguments=[
             (['-p', '--port'], {'help': 'Port for server. (Overwrites config port)', 'type': int, 'required': False}),
-            (['-a', '--address'], {'help': 'IPv4 host address for server. ', 'type': str, 'required': False})
+            (['-a', '--address'], {'help': 'IPv4 host address for server. ', 'type': str, 'default': '0.0.0.0'})
         ]
     )
     def api(self):
