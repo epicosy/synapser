@@ -35,7 +35,8 @@ class Base(Controller):
     @ex(
         help='Launches the server API',
         arguments=[
-            (['-p', '--port'], {'help': 'Port for server. (Overwrites config port)', 'type': int, 'required': False})
+            (['-p', '--port'], {'help': 'Port for server. (Overwrites config port)', 'type': int, 'required': False}),
+            (['-h', '--host'], {'help': 'IPv4 host address for server. ', 'type': str, 'required': False})
         ]
     )
     def api(self):
@@ -44,7 +45,7 @@ class Base(Controller):
         if self.app.pargs.port:
             port = self.app.pargs.port
 
-        self.app.api.run(debug=True, port=port)
+        self.app.api.run(debug=True, port=port, host=self.app.pargs.host)
 
     @ex(
         help='Test command wrapper',
