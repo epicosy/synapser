@@ -16,5 +16,6 @@ su -l postgres -c "/etc/init.d/postgresql start && psql --command \"CREATE USER 
 config_path="/etc/synapser"
 config_plugin_path="/etc/synapser/plugins.d"
 plugins_path="/var/lib/synapser/plugins/tool"
-mkdir -p $config_path && cp "config/synapser.yml" $config_path && mkdir -p $config_plugin_path && mkdir -p $plugins_path 2>&1
+mkdir -p $config_path && cp "config/synapser.yml" $config_path
+mkdir -p $config_plugin_path && mkdir -p $plugins_path && cp -a "synapser/plugins/." $plugins_path
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser configs." && exit 1 ;
