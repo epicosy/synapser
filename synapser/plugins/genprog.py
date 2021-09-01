@@ -15,7 +15,8 @@ class GenProg(ToolHandler):
         version = 'e720256'
 
     def help(self) -> CommandData:
-        tool_configs = self.get_configs(args={'--help': ''})
+        tool_configs = self.get_configs()
+        tool_configs.add_arg('--help', '')
         return super().__call__(cmd_data=CommandData(args=str(tool_configs)))
 
     def repair(self, compiler_command: str, test_command: str, timeout: int, **kwargs) -> CommandData:
