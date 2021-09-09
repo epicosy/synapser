@@ -11,13 +11,13 @@ class InstanceHandler(HandlersInterface, Handler):
     class Meta:
         label = 'instance'
 
-    def dispatch(self, test_command: dict, compiler_command: dict, timeout: str,
+    def dispatch(self, test_signal: dict, compiler_signal: dict, timeout: str,
                  **kwargs) -> Tuple[int, CommandData]:
         tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
 
-        tsid = signal_handler.save(url=compiler_command['endpoint'], data=test_command)
-        csid = signal_handler.save(url=compiler_command['endpoint'], data=compiler_command)
+        tsid = signal_handler.save(url=test_signal['url'], data=test_signal['json'])
+        csid = signal_handler.save(url=compiler_signal['url'], data=compiler_signal['json'])
 
         cmd_data = tool_handler.repair(test_command=f"\'synapser signal --id {tsid}\'",
                                        compiler_command=f"\'synapser signal --id {csid}\'",
