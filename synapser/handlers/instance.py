@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List, Dict, Any
 
 from cement import Handler
 
@@ -11,19 +11,18 @@ class InstanceHandler(HandlersInterface, Handler):
     class Meta:
         label = 'instance'
 
-    def dispatch(self, test_signal: dict, compiler_signal: dict, timeout: str,
-                 **kwargs) -> Tuple[int, CommandData]:
+    def dispatch(self, signals: List[Dict[str, Any]], timeout: str, **kwargs) -> Tuple[int, CommandData]:
         tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
+        singal_cmds = {}
 
-        tsid = signal_handler.save(url=test_signal['url'], data=test_signal['json'])
-        csid = signal_handler.save(url=compiler_signal['url'], data=compiler_signal['json'])
+        for signal in signals:
+            sid = signal_handler.save(url=signal['url'], args=signal['args'])
+            singal_cmds[signal['arg']] = f"\'synapser signal --id {sid}\'"
 
-        cmd_data = tool_handler.repair(test_command=f"\'synapser signal --id {tsid}\'",
-                                       compiler_command=f"\'synapser signal --id {csid}\'",
-                                       timeout=int(timeout), **kwargs)
+        cmd_data = tool_handler.repair(signals=singal_cmds, timeout=int(timeout), **kwargs)
 
-        return self.add(cmd_data.pid, test_sid=tsid, compile_sid=csid), cmd_data
+        return self.add(cmd_data.pid), cmd_data
 
-    def add(self, pid: int, test_sid: int, compile_sid: int, status: str = 'running'):
-        return self.app.db.add(Instance(pid=pid, status=status, name='genprog', tsid=test_sid, csid=compile_sid))
+    def add(self, pid: int, status: str = 'running'):
+        return self.app.db.add(Instance(pid=pid, status=status, name='genprog'))

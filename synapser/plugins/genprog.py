@@ -4,6 +4,7 @@ from typing import List, Union
 
 from synapser.core.data.results import CommandData
 from synapser.core.data.results import Patch
+from synapser.core.database import Signal
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
@@ -19,10 +20,9 @@ class GenProg(ToolHandler):
         tool_configs.add_arg('--help', '')
         return super().__call__(cmd_data=CommandData(args=str(tool_configs)))
 
-    def repair(self, compiler_command: str, test_command: str, timeout: int, **kwargs) -> CommandData:
-        args = {"--compiler-command": compiler_command, "--test-command": test_command}
-        args.update(kwargs)
-        tool_configs = self.get_configs(args)
+    def repair(self, signals: dict, timeout: int, **kwargs) -> CommandData:
+        kwargs.update(signals)
+        tool_configs = self.get_configs(kwargs)
         cmd_data = super().__call__(cmd_data=CommandData(args=str(tool_configs)), timeout=timeout)
 
         return cmd_data

@@ -18,7 +18,7 @@ class Signal(Base):
 
     id = Column(Integer, primary_key=True)
     url = Column('url', String, nullable=False)
-    data = Column('data', String, nullable=False)
+    args = Column('args', String, nullable=False)
 
     def decoded(self) -> dict:
         return pickle.loads(codecs.decode(self.data.encode(), 'base64'))
@@ -28,9 +28,9 @@ class SignalHandler(HandlersInterface, Handler):
     class Meta:
         label = 'signal'
 
-    def save(self, endpoint: str, data: dict) -> int:
-        encoded = codecs.decode(pickle.dumps(data), 'base64').decode()
-        signal = Signal(endpoint=endpoint, data=encoded)
+    def save(self, endpoint: str, args: dict) -> int:
+        encoded = codecs.decode(pickle.dumps(args), 'base64').decode()
+        signal = Signal(endpoint=endpoint, args=encoded)
 
         return self.app.db.add(Signal, signal)
 
