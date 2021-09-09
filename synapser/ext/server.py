@@ -1,6 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_marshmallow import Marshmallow
 from synapser.controllers.base import VERSION_BANNER
+from synapser.core.exc import SynapserError, BadRequestError
+from typing import List
+
+
+def verify_bad_request(data, keys: List[str], format_error: str):
+    for key in keys:
+        if not data.get(key, None):
+            raise BadRequestError(format_error.format(key))
 
 
 def setup_api(app):
@@ -16,14 +24,25 @@ def setup_api(app):
 
     @api.route('/repair', methods=['POST'])
     def repair():
-        instance_handler = app.handler.get('handlers', 'instance', setup=True)
-        iid, cmd_data = instance_handler.dispatch(args=request.form['args'], test_command=request.form['test_command'],
-                                                  compiler_command=request.form['compiler_command'],
-                                                  timeout=request.form['timeout'],
-                                                  benchmark_endpoint=request.form['benchmark_endpoint'])
-        results = {'iid': iid}
-        results.update(cmd_data.to_dict())
-        return jsonify(results)
+        if request.is_json:
+            data = request.get_json()
+
+            try:
+                verify_bad_request(data, keys=['test_command', 'compiler_command', 'timeout', 'args'],
+                                   format_error="This request was not properly formatted, must specify '{}'.")
+                
+                instance_handler = app.handler.get('handlers', 'instance', setup=True)
+                rid, cmd_data = instance_handler.dispatch(args=data['args'], test_command=data['test_command'],
+                                                          compiler_command=data['compiler_command'],
+                                                          timeout=data['timeout'])
+
+                return jsonify({'rid': rid, 'cmd': cmd_data.to_dict()})
+            except SynapserError as se:
+                return {"error": str(se)}, 500
+            except BadRequestError as bre:
+                return {"error": str(bre)}, 400
+
+        return {"error": "Request must be JSON"}, 415
 
     app.extend('api_ma', ma)
     app.extend('api', api)

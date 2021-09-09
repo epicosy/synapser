@@ -1,10 +1,41 @@
+import codecs
 import contextlib
-from typing import Union
+import pickle
 
-from sqlalchemy.orm import declarative_base, Session
-from sqlalchemy import Column, Integer, String, create_engine, inspect
+from typing import Union
+from cement import Handler
+
+from sqlalchemy.orm import declarative_base, Session, relationship
+from sqlalchemy import Column, Integer, String, create_engine, inspect, ForeignKey
+
+from synapser.core.interfaces import HandlersInterface
 
 Base = declarative_base()
+
+
+class Signal(Base):
+    __tablename__ = 'synapse'
+
+    id = Column(Integer, primary_key=True)
+    url = Column('url', String, nullable=False)
+    data = Column('data', String, nullable=False)
+
+    def decoded(self) -> dict:
+        return pickle.loads(codecs.decode(self.data.encode(), 'base64'))
+
+
+class SignalHandler(HandlersInterface, Handler):
+    class Meta:
+        label = 'signal'
+
+    def save(self, endpoint: str, data: dict) -> int:
+        encoded = codecs.decode(pickle.dumps(data), 'base64').decode()
+        signal = Signal(endpoint=endpoint, data=encoded)
+
+        return self.app.db.add(Signal, signal)
+
+    def load(self, sid: str) -> Signal:
+        return self.app.db.query(Signal, sid)
 
 
 class Instance(Base):
@@ -14,6 +45,10 @@ class Instance(Base):
     pid = Column('pid', Integer, nullable=False)
     name = Column('name', String(255), nullable=False)
     status = Column('status', String(255), nullable=False)
+    tsid = Column('tsid', String, ForeignKey('signal.id'), nullable=False)
+    csid = Column('csid', String, ForeignKey('signal.id'), nullable=False)
+    test_signal = relationship("Signal", foreign_keys=[tsid])
+    compile_signal = relationship("Signal", foreign_keys=[csid])
 
 
 class Database:

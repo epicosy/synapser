@@ -6,3 +6,7 @@ class SynapserError(Exception):
 
 class CommandError(Exception):
     """Command error"""
+
+
+class BadRequestError(Exception):
+    """HTTP Bad Request Error"""

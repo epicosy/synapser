@@ -48,31 +48,16 @@ class Base(Controller):
         self.app.api.run(debug=True, port=port, host=self.app.pargs.address)
 
     @ex(
-        help='Test command wrapper',
-        arguments=[
-            (['-e', '--endpoint'], {'help': 'Benchmark endpoint.', 'type': str, 'required': True}),
-            (['-c', '--command'], {'help': 'Benchmark test command.', 'type': str, 'required': True})
-        ]
-    )
-    def test(self):
-        response = requests.post(f"{self.app.pargs.endpoint}/test", data={'args': self.app.pargs.command})
-
-        if response.status_code != 200:
-            exit(1)
-        if 'error' in response.json() and response.json()['error'] is not None:
-            exit(1)
-
-        exit(0)
-
-    @ex(
         help='Compile command wrapper',
         arguments=[
-            (['-e', '--endpoint'], {'help': 'Benchmark endpoint.', 'type': str, 'required': True}),
-            (['-c', '--command'], {'help': 'Benchmark test command.', 'type': str, 'required': True})
+            (['--id'], {'help': 'The signal Id.', 'type': int, 'required': True})
         ]
     )
-    def compile(self):
-        response = requests.post(f"{self.app.pargs.endpoint}/compile", data={'args': self.app.pargs.command})
+    def signal(self):
+        signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
+
+        signal = signal_handler.load(self.app.pargs.sid)
+        response = requests.post(signal.url, json=signal.decoded())
 
         if response.status_code != 200:
             exit(1)
