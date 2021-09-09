@@ -15,7 +15,6 @@ class Configs:
 class ToolConfigs(Configs):
     program: str
     path: str
-    signals: dict
     args: dict = field(default_factory=lambda: {})
     sanity_check: bool = False
     fault_localization: bool = False
