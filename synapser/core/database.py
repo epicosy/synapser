@@ -45,10 +45,6 @@ class Instance(Base):
     pid = Column('pid', Integer, nullable=False)
     name = Column('name', String(255), nullable=False)
     status = Column('status', String(255), nullable=False)
-    tsid = Column('tsid', String, ForeignKey('signal.id'), nullable=False)
-    csid = Column('csid', String, ForeignKey('signal.id'), nullable=False)
-    test_signal = relationship("Signal", foreign_keys=[tsid])
-    compile_signal = relationship("Signal", foreign_keys=[csid])
 
 
 class Database:
