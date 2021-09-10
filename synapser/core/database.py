@@ -1,20 +1,18 @@
 import codecs
-import contextlib
 import pickle
+import contextlib
 
 from typing import Union
-from cement import Handler
 
-from sqlalchemy.orm import declarative_base, Session, relationship
-from sqlalchemy import Column, Integer, String, create_engine, inspect, ForeignKey
+from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy import Column, Integer, String, create_engine, inspect
 
-from synapser.core.interfaces import HandlersInterface
 
 Base = declarative_base()
 
 
 class Signal(Base):
-    __tablename__ = 'synapse'
+    __tablename__ = 'signal'
 
     id = Column(Integer, primary_key=True)
     url = Column('url', String, nullable=False)
@@ -22,20 +20,6 @@ class Signal(Base):
 
     def decoded(self) -> dict:
         return pickle.loads(codecs.decode(self.data.encode(), 'base64'))
-
-
-class SignalHandler(HandlersInterface, Handler):
-    class Meta:
-        label = 'signal'
-
-    def save(self, endpoint: str, args: dict) -> int:
-        encoded = codecs.decode(pickle.dumps(args), 'base64').decode()
-        signal = Signal(endpoint=endpoint, args=encoded)
-
-        return self.app.db.add(Signal, signal)
-
-    def load(self, sid: str) -> Signal:
-        return self.app.db.query(Signal, sid)
 
 
 class Instance(Base):

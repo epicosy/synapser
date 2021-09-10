@@ -4,9 +4,8 @@ from cement.core.exc import CaughtSignal
 
 from synapser.core.interfaces import HandlersInterface
 from synapser.handlers.command import CommandHandler
-from synapser.handlers.instance import InstanceHandler
+from synapser.handlers.instance import InstanceHandler, SignalHandler
 from synapser.handlers.plugin import PluginLoader
-from synapser.handlers.tool import ToolHandler
 from .core.exc import SynapserError
 from .controllers.base import Base
 
@@ -49,7 +48,7 @@ class Synapser(App):
 
         # register handlers
         handlers = [
-            Base, CommandHandler, PluginLoader, InstanceHandler
+            Base, CommandHandler, PluginLoader, InstanceHandler, SignalHandler
         ]
 
     def get_config(self, key: str):

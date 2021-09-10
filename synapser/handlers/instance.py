@@ -1,10 +1,27 @@
+import codecs
+import pickle
+
 from typing import Tuple, List, Dict, Any
 
 from cement import Handler
 
 from synapser.core.data.results import CommandData
-from synapser.core.database import Instance
+from synapser.core.database import Instance, Signal
 from synapser.core.interfaces import HandlersInterface
+
+
+class SignalHandler(HandlersInterface, Handler):
+    class Meta:
+        label = 'signal'
+
+    def save(self, endpoint: str, args: dict) -> int:
+        encoded = codecs.decode(pickle.dumps(args), 'base64').decode()
+        signal = Signal(endpoint=endpoint, args=encoded)
+
+        return self.app.db.add(Signal, signal)
+
+    def load(self, sid: str) -> Signal:
+        return self.app.db.query(Signal, sid)
 
 
 class InstanceHandler(HandlersInterface, Handler):
@@ -25,4 +42,4 @@ class InstanceHandler(HandlersInterface, Handler):
         return self.add(cmd_data.pid), cmd_data
 
     def add(self, pid: int, status: str = 'running'):
-        return self.app.db.add(Instance(pid=pid, status=status, name='genprog'))
+        return self.app.db.add(Instance(pid=pid, status=status, name=self.app.plugin.tool))
