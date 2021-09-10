@@ -28,10 +28,8 @@ def setup_api(app):
             data = request.get_json()
 
             try:
-                verify_bad_request(data, keys=['test_command', 'compiler_command', 'timeout', 'args'],
+                verify_bad_request(data, keys=['signals', 'timeout', 'args'],
                                    format_error="This request was not properly formatted, must specify '{}'.")
-                tool = app.handler.get('handlers', app.plugin.tool, setup=True)
-                configs = tool.get_configs()
 
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
                 rid, cmd_data = instance_handler.dispatch(args=data['args'], signals=data['signals'],
