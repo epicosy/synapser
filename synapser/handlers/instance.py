@@ -14,9 +14,9 @@ class SignalHandler(HandlersInterface, Handler):
     class Meta:
         label = 'signal'
 
-    def save(self, endpoint: str, args: dict) -> int:
+    def save(self, url: str, args: dict) -> int:
         encoded = codecs.decode(pickle.dumps(args), 'base64').decode()
-        signal = Signal(endpoint=endpoint, args=encoded)
+        signal = Signal(url=url, args=encoded)
 
         return self.app.db.add(Signal, signal)
 
