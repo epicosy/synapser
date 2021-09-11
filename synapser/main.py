@@ -4,7 +4,8 @@ from cement.core.exc import CaughtSignal
 
 from synapser.core.interfaces import HandlersInterface
 from synapser.handlers.command import CommandHandler
-from synapser.handlers.instance import InstanceHandler, SignalHandler
+from synapser.handlers.instance import InstanceHandler
+from synapser.handlers.api import SignalHandler
 from synapser.handlers.plugin import PluginLoader
 from .core.exc import SynapserError
 from .controllers.base import Base

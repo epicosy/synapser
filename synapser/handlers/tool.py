@@ -27,7 +27,7 @@ class ToolHandler(CommandHandler):
         return ToolConfigs(name=self.Meta.label, **configs)
 
     @abstractmethod
-    def repair(self, signals: dict, timeout: int, **kwargs) -> CommandData:
+    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> CommandData:
         pass
 
     @abstractmethod

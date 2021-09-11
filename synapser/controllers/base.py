@@ -1,4 +1,3 @@
-import requests
 
 from cement import Controller, ex
 from cement.utils.version import get_version_banner
@@ -50,18 +49,15 @@ class Base(Controller):
     @ex(
         help='Compile command wrapper',
         arguments=[
-            (['--id'], {'help': 'The signal Id.', 'type': int, 'required': True})
+            (['--id'], {'help': 'The signal Id.', 'type': int, 'required': True}),
+            (['--placeholders'], {'help': 'Placeholders to capture input from the tool.', 'type': str, 'nargs': '+',
+                                  'required': False})
         ]
     )
     def signal(self):
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
 
-        signal = signal_handler.load(self.app.pargs.sid)
-        response = requests.post(signal.url, json=signal.decoded())
-
-        if response.status_code != 200:
-            exit(1)
-        if 'error' in response.json() and response.json()['error'] is not None:
+        if not signal_handler.transmit(self.app.pargs.id, self.app.pargs.placeholders):
             exit(1)
 
         exit(0)

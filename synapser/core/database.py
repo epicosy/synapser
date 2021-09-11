@@ -1,8 +1,8 @@
-import codecs
-import pickle
+import base64
+import json
 import contextlib
 
-from typing import Union
+from typing import Union, Tuple
 
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy import Column, Integer, String, create_engine, inspect
@@ -16,10 +16,11 @@ class Signal(Base):
 
     id = Column(Integer, primary_key=True)
     url = Column('url', String, nullable=False)
-    args = Column('args', String, nullable=False)
+    data = Column('data', String, nullable=False)
+    placeholders = Column('placeholders', String, nullable=False)
 
-    def decoded(self) -> dict:
-        return pickle.loads(codecs.decode(self.data.encode(), 'base64'))
+    def decoded(self) -> Tuple[dict, dict]:
+        return json.loads(base64.b64decode(self.data).decode()), json.loads(base64.b64decode(self.placeholders).decode())
 
 
 class Instance(Base):

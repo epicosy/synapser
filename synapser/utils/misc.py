@@ -11,8 +11,8 @@ def args_to_str(args: dict) -> str:
     arg_str = ""
 
     for opt, arg in args.items():
-        if opt == 'args':
-            arg_str += f" {arg}"
+        if isinstance(arg, dict):
+            arg_str += args_to_str(arg)
             continue
         arg_str += f" {opt} {arg}" if arg else f" {opt}"
 

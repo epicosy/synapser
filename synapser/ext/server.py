@@ -33,7 +33,7 @@ def setup_api(app):
 
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
                 rid, cmd_data = instance_handler.dispatch(args=data['args'], signals=data['signals'],
-                                                          timeout=data['timeout'])
+                                                          timeout=data['timeout'], working_dir=data['working_dir'])
 
                 return jsonify({'rid': rid, 'cmd': cmd_data.to_dict()})
             except SynapserError as se:

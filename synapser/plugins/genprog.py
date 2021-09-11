@@ -20,10 +20,11 @@ class GenProg(ToolHandler):
         tool_configs.add_arg('--help', '')
         return super().__call__(cmd_data=CommandData(args=str(tool_configs)))
 
-    def repair(self, signals: dict, timeout: int, **kwargs) -> CommandData:
+    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> CommandData:
         kwargs.update(signals)
         tool_configs = self.get_configs(kwargs)
-        cmd_data = super().__call__(cmd_data=CommandData(args=str(tool_configs)), timeout=timeout)
+        cmd_data = super().__call__(cmd_data=CommandData(args=str(tool_configs)), timeout=timeout,
+                                    cmd_cwd=working_dir)
 
         return cmd_data
 
