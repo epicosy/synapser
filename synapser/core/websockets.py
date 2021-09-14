@@ -17,7 +17,6 @@ class ProcessProtocol(protocol.ProcessProtocol):
         self.buffer = []
 
     def outReceived(self, message):
-        #self.ws.logger.warning(message)
         self.ws.broadcast(message)
         self.buffer.append(message)
         # Last 10 messages please
@@ -26,10 +25,21 @@ class ProcessProtocol(protocol.ProcessProtocol):
     def errReceived(self, data):
         print("Error: %s" % data)
 
+    def inConnectionLost(self):
+        print("inConnectionLost! stdin is closed! (we probably did it)")
+
+    def outConnectionLost(self):
+        print("outConnectionLost! The child closed their stdout!")
+        #self.transport.closeStdout()
+
+    def processExited(self, reason):
+        print("processExited, status %d" % (reason.value.exitCode,))
+        self.transport.closeStdin()
+
     def processEnded(self, reason):
         print("processEnded, status %d" % (reason.value.exitCode,))
         print("quitting")
-        reactor.stop()
+        reactor.callFromThread(reactor.stop)
 
 
 # https://autobahn.ws/python
@@ -58,12 +68,8 @@ class WebSocketProcessFactory(WebSocketServerFactory):
         self.clients = []
         self.logger = logger
         self.process = ProcessProtocol(self)
-        logger.warning(cmd_data.args)
         reactor.spawnProcess(self.process, cmd_data.path, args=cmd_data.args, env=os.environ, path=cmd_data.working_dir,
-                             usePTY=True)
-
-    def run(self):
-        reactor.run()
+                             usePTY=False)
 
     def register(self, client):
         self.logger.info("Registered client %s" % client)

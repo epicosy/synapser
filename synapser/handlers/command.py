@@ -96,7 +96,8 @@ class CommandHandler(HandlersInterface, Handler):
     def websocket(self, cmd_data: CommandData, port: int):
         factory = WebSocketProcessFactory(url=f"ws://0.0.0.0:{port}", cmd_data=cmd_data, logger=self.app.log)
         listenWS(factory)
-        factory.run()
+        #reactor.callFromThread(reactor.run)
+        reactor.run()
 
 
 # https://stackoverflow.com/a/54775443
