@@ -1,16 +1,19 @@
+import asyncio
 import re
+
 from pathlib import Path
 from typing import List, Union
 
 from synapser.core.data.results import CommandData
 from synapser.core.data.results import Patch
-from synapser.core.database import Signal
+from synapser.core.database import Instance
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
 
 class GenProg(ToolHandler):
     """GenProg"""
+
     class Meta:
         label = 'genprog'
         version = 'e720256'
@@ -20,13 +23,17 @@ class GenProg(ToolHandler):
         tool_configs.add_arg('--help', '')
         return super().__call__(cmd_data=CommandData(args=str(tool_configs)))
 
-    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> CommandData:
+    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> int:
+        iid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool))
         kwargs.update(signals)
         tool_configs = self.get_configs(kwargs)
-        cmd_data = super().__call__(cmd_data=CommandData(args=str(tool_configs)), timeout=timeout,
-                                    cmd_cwd=working_dir)
+        cmd_data = CommandData(path=tool_configs.full_path, args=tool_configs.to_list(), working_dir=working_dir,
+                               timeout=timeout)
+        super().websocket(cmd_data=cmd_data, port=5678)
 
-        return cmd_data
+        self.app.db.update(Instance, iid, 'socket', 5678)
+
+        return iid
 
     def get_patches(self, working_dir: Path, target_files: List[Path], **kwargs) -> List[Patch]:
         patches = []

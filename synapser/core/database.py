@@ -27,9 +27,9 @@ class Instance(Base):
     __tablename__ = 'instance'
 
     id = Column(Integer, primary_key=True)
-    pid = Column('pid', Integer, nullable=False)
     name = Column('name', String(255), nullable=False)
     status = Column('status', String(255), nullable=False)
+    socket = Column('socket', Integer, nullable=True)
 
 
 class Database:

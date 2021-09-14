@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from synapser.utils.misc import args_to_str
+from synapser.utils.misc import args_to_str, args_to_list
 
 
 @dataclass
@@ -22,9 +22,16 @@ class ToolConfigs(Configs):
     def add_arg(self, opt: str, arg):
         self.args[opt] = arg
 
+    def to_list(self):
+        return [self.program] + args_to_list(self.args)
+
     def validate(self):
         assert Path(self.path).exists(), "Parent path to the executable program not found"
         assert Path(self.path, self.program).exists(), "Executable program for the repair tool not found"
+
+    @property
+    def full_path(self):
+        return f"{self.path}/{self.program}"
 
     def __str__(self):
         return f"{self.path}/{self.program} {args_to_str(self.args)}"

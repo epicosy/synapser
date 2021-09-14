@@ -1,10 +1,9 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Dict, Union, List
+from typing import Dict, Union
 
 from synapser.core.data.configs import ToolConfigs
 from synapser.core.data.results import CommandData, Diff, Patch
-from synapser.core.database import Signal
 from synapser.handlers.command import CommandHandler
 
 
@@ -27,7 +26,7 @@ class ToolHandler(CommandHandler):
         return ToolConfigs(name=self.Meta.label, **configs)
 
     @abstractmethod
-    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> CommandData:
+    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> int:
         pass
 
     @abstractmethod

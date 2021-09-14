@@ -32,10 +32,10 @@ def setup_api(app):
                                    format_error="This request was not properly formatted, must specify '{}'.")
 
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
-                rid, cmd_data = instance_handler.dispatch(args=data['args'], signals=data['signals'],
-                                                          timeout=data['timeout'], working_dir=data['working_dir'])
+                rid = instance_handler.dispatch(args=data['args'], signals=data['signals'], timeout=data['timeout'],
+                                                working_dir=data['working_dir'])
 
-                return jsonify({'rid': rid, 'cmd': cmd_data.to_dict()})
+                return jsonify({'rid': rid})
             except SynapserError as se:
                 return {"error": str(se)}, 500
             except BadRequestError as bre:

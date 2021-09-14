@@ -29,15 +29,17 @@ class Patch:
 @dataclass
 class CommandData:
     # env: dict = None
-    args: str
+    path: str
+    args: List[AnyStr]
+    timeout: int
     pid: int = None
     return_code: int = 0
     duration: float = 0
+    working_dir: str = None
     start: datetime = None
     end: datetime = None
     output: AnyStr = None
     error: AnyStr = None
-    timeout: bool = False
 
     def to_dict(self):
         return {'args': self.args, 'return_code': self.return_code, 'duration': self.duration, 'start': str(self.start),

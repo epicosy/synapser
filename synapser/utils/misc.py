@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, AnyStr
 
 
 def match_patches(sources: List[Path], program_root_dir: Path, patch_root_dir: Path) -> Dict[Path, Path]:
@@ -17,3 +17,19 @@ def args_to_str(args: dict) -> str:
         arg_str += f" {opt} {arg}" if arg else f" {opt}"
 
     return arg_str
+
+
+def args_to_list(args: dict) -> List[AnyStr]:
+    arg_list = []
+
+    for opt, arg in args.items():
+        if isinstance(arg, dict):
+            arg_list.extend(args_to_list(arg))
+            continue
+
+        if arg:
+            arg_list.extend([opt, str(arg)])
+        else:
+            arg_list.append(opt)
+
+    return arg_list
