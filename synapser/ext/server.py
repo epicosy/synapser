@@ -23,6 +23,16 @@ def setup_api(app):
         tool = app.handler.get('handlers', app.plugin.tool, setup=True)
         return f"{VERSION_BANNER}\nServing {app.plugin.tool}\n{tool.help().output}"
 
+    @api.route('/stream/<rid>', methods=['GET'])
+    def stream(rid):
+        instance_handler = app.handler.get('handlers', 'instance', setup=True)
+        instance = instance_handler.get(rid)
+
+        if instance and instance.socket:
+            return jsonify({'socket', instance.socket, 'status', instance.status})
+
+        return jsonify({})
+
     @api.route('/repair', methods=['POST'])
     def repair():
         if request.is_json:
