@@ -28,10 +28,10 @@ def setup_api(app):
         instance_handler = app.handler.get('handlers', 'instance', setup=True)
         instance = instance_handler.get(rid)
 
-        if instance and instance.socket:
-            return jsonify({'socket', instance.socket, 'status', instance.status})
+        if instance:
+            return jsonify({'socket': instance.socket, 'status': instance.status})
 
-        return jsonify({})
+        return {"error": f"Repair instance {rid} not found"}, 404
 
     @api.route('/repair', methods=['POST'])
     def repair():
