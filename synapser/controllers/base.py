@@ -2,7 +2,7 @@
 from cement import Controller, ex
 from cement.utils.version import get_version_banner
 from ..core.version import get_version
-
+from ..core.websockets import connect_local_ws_process
 
 VERSION_BANNER = """
 Automatic Program Repair API Framework %s
@@ -61,3 +61,18 @@ class Base(Controller):
             exit(1)
 
         exit(0)
+
+    @ex(
+        help='Stream repair instance execution output',
+        arguments=[
+            (['--id'], {'help': 'The repair instance id.', 'type': int, 'required': True})
+        ]
+    )
+    def stream(self):
+        instance_handler = self.app.handler.get('handlers', 'instance', setup=True)
+        instance = instance_handler.get(self.app.pargs.id)
+
+        if instance.socket:
+            connect_local_ws_process(instance.socket)
+        elif instance.status == "done":
+            print("WebSocket connection closed")

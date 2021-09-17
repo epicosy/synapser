@@ -29,6 +29,8 @@ class Instance(Base):
     id = Column(Integer, primary_key=True)
     name = Column('name', String(255), nullable=False)
     status = Column('status', String(255), nullable=False)
+    path = Column('path', String, nullable=False)
+    target = Column('target', String, nullable=False)
     socket = Column('socket', Integer, nullable=True)
 
 

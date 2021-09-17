@@ -1,12 +1,9 @@
-import asyncio
 import re
 
 from pathlib import Path
-from typing import List, Union
+from typing import List, Any, Dict
 
-from synapser.core.data.results import CommandData
-from synapser.core.data.results import Patch
-from synapser.core.database import Instance
+from synapser.core.data.results import CommandData, WebSocketData
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
@@ -21,44 +18,33 @@ class GenProg(ToolHandler):
     def help(self) -> CommandData:
         tool_configs = self.get_configs()
         tool_configs.add_arg('--help', '')
-        return super().__call__(cmd_data=CommandData(args=str(tool_configs)))
+        return super().__call__(cmd_data=CommandData(path=tool_configs.full_path, args=tool_configs.to_list(),
+                                                     timeout=100))
 
-    def repair(self, signals: dict, timeout: int, working_dir: str, **kwargs) -> int:
-        iid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool))
+    def repair(self, signals: dict, timeout: int, working_dir: str, target: str, **kwargs) -> WebSocketData:
         kwargs.update(signals)
         tool_configs = self.get_configs(kwargs)
-        cmd_data = CommandData(path=tool_configs.full_path, args=tool_configs.to_list(), working_dir=working_dir,
-                               timeout=timeout)
-        super().websocket(cmd_data=cmd_data, port=5678)
 
-        self.app.db.update(Instance, iid, 'socket', 5678)
+        return WebSocketData(path=tool_configs.full_path, args=tool_configs.to_list(), cwd=working_dir, timeout=timeout)
 
-        return iid
+    def get_patches(self, working_dir: str, target_files: List[str], **kwargs) -> Dict[str, Any]:
+        dirs = [p for p in Path(working_dir).iterdir()]
+        dirs.append(Path(working_dir, 'repair'))
+        patches = {}
 
-    def get_patches(self, working_dir: Path, target_files: List[Path], **kwargs) -> List[Patch]:
-        patches = []
+        for tf in target_files:
+            patches[tf] = {}
 
-        for d in self.iterdir(working_dir):
-            if d.is_dir() and re.match(r"^\d{6}$", str(d.name)):
-                matches = match_patches(sources=target_files, program_root_dir=working_dir / 'sanity',
-                                        patch_root_dir=d)
-                patch = self.get_patch(matches=matches, is_fix=False)
+            for d in dirs:
+                if d.is_dir() and (re.match(r"^\d{6}$", str(d.name)) or d.name == 'repair'):
+                    original, patch_file = match_patches(source=tf, program_root_dir=Path(working_dir, 'sanity'),
+                                                         patch_root_dir=d)
 
-                if patch:
-                    patches.append(patch)
+                    if patch_file:
+                        patch = self.get_patch(original=original, patch=patch_file, is_fix=False)
+                        patches[tf][d.name] = patch.change
 
         return patches
-
-    def get_fix(self, working_dir: Path, target_files: List[Path], **kwargs) -> Union[Patch, None]:
-        repair_dir = working_dir / Path("repair")
-
-        if repair_dir.exists():
-            return None
-
-        matches = match_patches(sources=target_files, program_root_dir=working_dir / 'sanity',
-                                patch_root_dir=repair_dir)
-
-        return self.get_patch(matches=matches, is_fix=True)
 
 
 def load(nexus):

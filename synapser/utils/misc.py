@@ -1,10 +1,15 @@
 from pathlib import Path
-from typing import List, Dict, AnyStr
+from typing import List, AnyStr, Tuple, Union
 
 
-def match_patches(sources: List[Path], program_root_dir: Path, patch_root_dir: Path) -> Dict[Path, Path]:
+def match_patches(source: str, program_root_dir: Path, patch_root_dir: Path) \
+        -> Tuple[Path, Union[None, Path]]:
     patch_files = [f.relative_to(patch_root_dir) for f in patch_root_dir.glob("**/*.*")]
-    return {(program_root_dir / file): (patch_root_dir / file) for file in sources if file in patch_files}
+
+    if Path(source) in patch_files:
+        return program_root_dir / source, (patch_root_dir / source)
+
+    return program_root_dir / source, None
 
 
 def args_to_str(args: dict) -> str:

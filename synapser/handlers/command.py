@@ -1,32 +1,16 @@
-import contextlib
 import subprocess
+
 import psutil as psutil
 
 from os import environ
 from threading import Timer
 from datetime import datetime
 
-from autobahn.twisted.websocket import listenWS
 from cement import Handler
-from twisted.internet import reactor
 
 from synapser.core.exc import CommandError
 from synapser.core.data.results import CommandData
 from synapser.core.interfaces import HandlersInterface
-from synapser.core.websockets import WebSocketProcessFactory
-
-
-def unbuffered(proc, stream):
-    stream = getattr(proc, stream)
-    with contextlib.closing(stream):
-        while True:
-            last = stream.read(100)
-            # stop when end of stream reached
-            if not last:
-                if proc.poll() is not None:
-                    break
-            else:
-                yield last
 
 
 class CommandHandler(HandlersInterface, Handler):
@@ -92,12 +76,6 @@ class CommandHandler(HandlersInterface, Handler):
                 exit(proc.returncode)
 
             return cmd_data
-
-    def websocket(self, cmd_data: CommandData, port: int):
-        factory = WebSocketProcessFactory(url=f"ws://0.0.0.0:{port}", cmd_data=cmd_data, logger=self.app.log)
-        listenWS(factory)
-        #reactor.callFromThread(reactor.run)
-        reactor.run()
 
 
 # https://stackoverflow.com/a/54775443

@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import AnyStr, List
+from typing import AnyStr, List, Any, Union
 from dataclasses import dataclass, field
 from datetime import datetime
 
 
 @dataclass
-class Diff:
+class Patch:
+    is_fix: bool
     source_file: Path
     patch_file: Path
     change: AnyStr
@@ -13,34 +14,42 @@ class Diff:
     def __str__(self):
         return f"{self.source_file.name} {self.patch_file.name}\n{self.change}"
 
-
-@dataclass
-class Patch:
-    is_fix: bool
-    diffs: List[Diff] = field(default_factory=lambda: [])
-
-    def add(self, diff: Diff):
-        self.diffs.append(diff)
-
-    def __str__(self):
-        return '\n'.join([str(d) for d in self.diffs])
+    def to_dict(self):
+        return {str(self.patch_file): self.change}
 
 
 @dataclass
-class CommandData:
-    # env: dict = None
-    path: str
-    args: List[AnyStr]
-    timeout: int
+class ProcessData:
+    args: Union[AnyStr, List] = None
+    path: str = ""
+    timeout: int = 30
     pid: int = None
     return_code: int = 0
     duration: float = 0
-    working_dir: str = None
+    cwd: str = None
     start: datetime = None
     end: datetime = None
     output: AnyStr = None
     error: AnyStr = None
 
     def to_dict(self):
-        return {'args': self.args, 'return_code': self.return_code, 'duration': self.duration, 'start': str(self.start),
+        return {'return_code': self.return_code, 'duration': self.duration, 'start': str(self.start),
                 'end': str(self.end), 'output': self.output, 'error': self.error, 'timeout': self.timeout}
+
+
+@dataclass
+class CommandData(ProcessData):
+    def to_dict(self):
+        d = super().to_dict()
+        d['args'] = self.args
+
+        return d
+
+
+@dataclass
+class WebSocketData(ProcessData):
+    def to_dict(self):
+        d = super().to_dict()
+        d['args'] = ' '.join(self.args)
+
+        return d
