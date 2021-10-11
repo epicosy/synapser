@@ -1,7 +1,10 @@
 from pathlib import Path
-from typing import AnyStr, List, Any, Union
-from dataclasses import dataclass, field
+from typing import AnyStr, List, Union
+from dataclasses import dataclass
 from datetime import datetime
+
+from synapser.core.data.configs import ToolConfigs
+from synapser.utils.misc import args_to_list
 
 
 @dataclass
@@ -53,3 +56,14 @@ class WebSocketData(ProcessData):
         d['args'] = ' '.join(self.args)
 
         return d
+
+
+@dataclass
+class RepairCommand:
+    configs: ToolConfigs
+
+    def add_arg(self, opt: str, arg):
+        self.configs.args[opt] = arg
+
+    def to_list(self):
+        return [self.configs.program] + args_to_list(self.configs.args)

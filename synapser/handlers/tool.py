@@ -2,8 +2,9 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Union
 
+from synapser.core.data.api import RepairRequest
 from synapser.core.data.configs import ToolConfigs
-from synapser.core.data.results import CommandData, Patch, WebSocketData
+from synapser.core.data.results import CommandData, Patch, WebSocketData, RepairCommand
 from synapser.core.database import Instance
 from synapser.core.websockets import WebSocketProcessFactory
 from synapser.handlers.command import CommandHandler
@@ -16,19 +17,13 @@ class ToolHandler(CommandHandler):
     def get_config(self, key: str):
         return self.app.config.get(self.Meta.label, key)
 
-    def get_configs(self, args: dict = None):
+    def get_configs(self):
         configs = self.app.config.get_section_dict(self.Meta.label).copy()
-
-        if args:
-            if 'args' in configs:
-                configs['args'].update(args)
-            else:
-                configs['args'] = args
 
         return ToolConfigs(name=self.Meta.label, **configs)
 
     @abstractmethod
-    def repair(self, signals: dict, timeout: int, working_dir: str, target: str, **kwargs) -> int:
+    def repair(self, signals: dict, repair_request: RepairRequest) -> RepairCommand:
         pass
 
     @abstractmethod
@@ -49,7 +44,9 @@ class ToolHandler(CommandHandler):
         self.app.db.update(Instance, rid, 'status', 'done')
         self.app.log.info(f"Repair instance {rid} finished execution.")
 
-    def dispatch(self, rid: int, ws_data: WebSocketData):
+    def dispatch(self, rid: int, repair_cmd: RepairCommand, repair_request: RepairRequest):
+        ws_data = WebSocketData(path=repair_cmd.configs.full_path, args=repair_cmd.to_list(),
+                                cwd=str(repair_request.working_dir),  timeout=repair_request.timeout)
         factory = WebSocketProcessFactory(ws_data=ws_data, finish=self.finish, rid=rid, logger=self.app.log)
         self.app.db.update(Instance, rid, 'socket', factory.listener.getHost().port)
         factory.run()

@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from flask import Flask, request, jsonify
 #from flask_marshmallow import Marshmallow
 from synapser.controllers.base import VERSION_BANNER
+from synapser.core.data.api import RepairRequest
 from synapser.core.exc import SynapserError, BadRequestError
 from typing import List
 
@@ -39,12 +42,12 @@ def setup_api(app):
             data = request.get_json()
 
             try:
-                verify_bad_request(data, keys=['signals', 'timeout', 'args', 'target'],
+                verify_bad_request(data, keys=['signals', 'timeout', 'args', 'manifest', 'working_dir', 'build_dir'],
                                    format_error="This request was not properly formatted, must specify '{}'.")
-
+                repair_request = RepairRequest(args=data['args'], manifest=data['manifest'], timeout=data['timeout'],
+                                               working_dir=Path(data['working_dir']), build_dir=Path(data['build_dir']))
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
-                rid = instance_handler.dispatch(args=data['args'], signals=data['signals'], timeout=data['timeout'],
-                                                working_dir=data['working_dir'], target=data['target'])
+                rid = instance_handler.dispatch(signals=data['signals'], repair_request=repair_request)
 
                 return jsonify({'rid': rid})
             except SynapserError as se:

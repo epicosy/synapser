@@ -36,6 +36,18 @@ class SignalHandler(HandlersInterface, Handler):
     class Meta:
         label = 'signal'
 
+    def get_commands(self, signals: dict) -> dict:
+        singal_cmds = {}
+
+        for arg, signal in signals.items():
+            sid, placeholders = self.save(url=signal['url'], data=signal['data'], placeholders=signal['placeholders'])
+            if placeholders:
+                singal_cmds[arg] = f"synapser signal --id {sid} --placeholders {placeholders}"
+            else:
+                singal_cmds[arg] = f"synapser signal --id {sid}"
+
+        return singal_cmds
+
     def save(self, url: str, data: dict, placeholders: dict) -> Tuple[int, str]:
         placeholders_wrapper = {}
         placeholders_arg = ""

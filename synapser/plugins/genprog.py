@@ -3,7 +3,8 @@ import re
 from pathlib import Path
 from typing import List, Any, Dict
 
-from synapser.core.data.results import CommandData, WebSocketData
+from synapser.core.data.api import RepairRequest
+from synapser.core.data.results import CommandData, RepairCommand
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
@@ -21,11 +22,21 @@ class GenProg(ToolHandler):
         return super().__call__(cmd_data=CommandData(path=tool_configs.full_path, args=tool_configs.to_list(),
                                                      timeout=100))
 
-    def repair(self, signals: dict, timeout: int, working_dir: str, target: str, **kwargs) -> WebSocketData:
-        kwargs.update(signals)
-        tool_configs = self.get_configs(kwargs)
+    def repair(self, signals: dict, repair_request: RepairRequest) -> RepairCommand:
+        manifest_file = repair_request.working_dir / 'manifest.txt'
+        repair_command = RepairCommand(configs=self.get_configs())
 
-        return WebSocketData(path=tool_configs.full_path, args=tool_configs.to_list(), cwd=working_dir, timeout=timeout)
+        with manifest_file.open(mode='w') as mf:
+            mf.write('\n'.join(repair_request.manifest))
+
+        repair_command.add_arg(opt='--program', arg=str(manifest_file))
+        repair_command.add_arg(opt='--prefix', arg=str(repair_request.build_dir))
+        repair_command.add_arg(opt='--rep', arg="cilpatch" if len(repair_request.manifest) > 1 else "c")
+
+        for opt, arg in signals.items():
+            repair_command.add_arg(opt=opt, arg=arg)
+
+        return repair_command
 
     def get_patches(self, working_dir: str, target_files: List[str], **kwargs) -> Dict[str, Any]:
         dirs = [p for p in Path(working_dir).iterdir()]
