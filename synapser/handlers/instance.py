@@ -16,7 +16,7 @@ class InstanceHandler(HandlersInterface, Handler):
         tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
         signal_cmds = signal_handler.get_commands(signals)
-        rid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, path=repair_request.working_dir,
+        rid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, path=str(repair_request.working_dir),
                                        target=repair_request.manifest[0]))
 
         repair_cmd = tool_handler.repair(signals=signal_cmds, repair_request=repair_request)
