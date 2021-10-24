@@ -10,3 +10,10 @@ class RepairRequest:
     working_dir: Path
     build_dir: Path
     timeout: int
+
+
+@dataclass
+class CoverageRequest:
+    manifest: List[AnyStr]
+    working_dir: Path
+    build_dir: Path

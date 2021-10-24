@@ -16,6 +16,7 @@ class ToolConfigs(Configs):
     program: str
     path: str
     args: dict = field(default_factory=lambda: {})
+    sections: dict = field(default_factory=lambda: {})
     sanity_check: bool = False
     fault_localization: bool = False
 

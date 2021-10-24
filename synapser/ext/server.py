@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import Flask, request, jsonify
 #from flask_marshmallow import Marshmallow
 from synapser.controllers.base import VERSION_BANNER
-from synapser.core.data.api import RepairRequest
+from synapser.core.data.api import RepairRequest, CoverageRequest
 from synapser.core.exc import SynapserError, BadRequestError
 from typing import List
 
@@ -54,6 +54,23 @@ def setup_api(app):
                 return {"error": str(se)}, 500
             except BadRequestError as bre:
                 return {"error": str(bre)}, 400
+
+        return {"error": "Request must be JSON"}, 415
+
+    @api.route('/coverage', methods=['POST'])
+    def coverage():
+        if request.is_json:
+            data = request.get_json()
+
+            try:
+                coverage_request = CoverageRequest(manifest=data['manifest'], working_dir=Path(data['working_dir']),
+                                                   build_dir=Path(data['build_dir']))
+                instance_handler = app.handler.get('handlers', 'instance', setup=True)
+                cid = instance_handler.coverage(signals=data['signals'], coverage_request=coverage_request)
+
+                return jsonify({'cid': cid})
+            except SynapserError as se:
+                return {"error": str(se)}, 500
 
         return {"error": "Request must be JSON"}, 415
 

@@ -40,7 +40,8 @@ class SignalHandler(HandlersInterface, Handler):
         singal_cmds = {}
 
         for arg, signal in signals.items():
-            sid, placeholders = self.save(url=signal['url'], data=signal['data'], placeholders=signal['placeholders'])
+            sid, placeholders = self.save(arg=arg, url=signal['url'], data=signal['data'],
+                                          placeholders=signal['placeholders'])
             if placeholders:
                 singal_cmds[arg] = f"synapser signal --id {sid} --placeholders {placeholders}"
             else:
@@ -48,7 +49,7 @@ class SignalHandler(HandlersInterface, Handler):
 
         return singal_cmds
 
-    def save(self, url: str, data: dict, placeholders: dict) -> Tuple[int, str]:
+    def save(self, arg: str, url: str, data: dict, placeholders: dict) -> Tuple[int, str]:
         placeholders_wrapper = {}
         placeholders_arg = ""
 
@@ -59,12 +60,13 @@ class SignalHandler(HandlersInterface, Handler):
         encoded_data = base64.b64encode(json.dumps(data).encode()).decode()
         encoded_placeholders = base64.b64encode(json.dumps(placeholders_wrapper).encode()).decode()
 
-        return self.app.db.add(Signal(url=url, data=encoded_data, placeholders=encoded_placeholders)), placeholders_arg
+        return self.app.db.add(
+            Signal(arg=arg, url=url, data=encoded_data, placeholders=encoded_placeholders)), placeholders_arg
 
     def load(self, sid: int) -> Signal:
         return self.app.db.query(Signal, sid)
 
-    def transmit(self, sid: int, placeholders_wrapper: List[str]) -> bool:
+    def transmit(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> bool:
         signal = self.load(sid)
         data, placeholders = signal.decoded()
 
@@ -72,11 +74,25 @@ class SignalHandler(HandlersInterface, Handler):
             # get filled placeholders
             for p in placeholders_wrapper:
                 # match with original arguments
-                k, v = p.split(':')
+                try:
+                    k, v = p.split(':')
+
+                    if "__EXTRA__" in v:
+                        # parse extra arguments added by the tool
+                        if extra_args:
+                            tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
+                            v = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
+
+                except ValueError as ve:
+                    self.app.log.error(ve)
+                    continue
+
                 data['args'][placeholders[k]] = v
 
         try:
             response = requests.post(signal.url, json=data)
+            with open('/tmp/response.txt', mode="a") as of:
+                of.write(f"{response.json()} {signal} \n")
             check_response(response)
             return int(response.json()['return_code']) == 0
         except SynapserError as se:

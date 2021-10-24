@@ -60,7 +60,7 @@ class ProcessProtocol(protocol.ProcessProtocol):
         self.ws.reactor.callFromThread(self.ws.reactor.stop)
         self.ws.finish(self.ws.rid)
         self.ws.loop.stop()
-        self.ws.loop.close()
+#        self.ws.loop.close()
 
 
 # https://autobahn.ws/python
@@ -100,6 +100,7 @@ class WebSocketProcessFactory(WebSocketServerFactory):
         self.reactor = AsyncioSelectorReactor()
         self.listener = self.reactor.listenTCP(0, self)
         self.reactor.callFromThread(self.reactor.startRunning, False)
+        self.logger.debug(self.ws_data.args)
         self.reactor.spawnProcess(self.process, self.ws_data.path, args=self.ws_data.args, env=os.environ,
                                   path=self.ws_data.cwd, usePTY=False)
 

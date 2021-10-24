@@ -1,5 +1,5 @@
-
 from cement import Controller, ex
+from cement.ext.ext_argparse import ArgparseArgumentHandler
 from cement.utils.version import get_version_banner
 from ..core.version import get_version
 from ..core.websockets import connect_local_ws_process
@@ -8,6 +8,9 @@ VERSION_BANNER = """
 Automatic Program Repair API Framework %s
 %s
 """ % (get_version(), get_version_banner())
+
+argparse_handler = ArgparseArgumentHandler(add_help=False)
+argparse_handler.Meta.ignore_unknown_arguments = True
 
 
 class Base(Controller):
@@ -52,12 +55,13 @@ class Base(Controller):
             (['--id'], {'help': 'The signal Id.', 'type': int, 'required': True}),
             (['--placeholders'], {'help': 'Placeholders to capture input from the tool.', 'type': str, 'nargs': '+',
                                   'required': False})
-        ]
+        ],
+        parents=[argparse_handler]
     )
     def signal(self):
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
 
-        if not signal_handler.transmit(self.app.pargs.id, self.app.pargs.placeholders):
+        if not signal_handler.transmit(self.app.pargs.id, self.app.pargs.placeholders, self._parser.unknown_args):
             exit(1)
 
         exit(0)

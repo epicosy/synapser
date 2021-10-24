@@ -61,6 +61,7 @@ class WebSocketData(ProcessData):
 @dataclass
 class RepairCommand:
     configs: ToolConfigs
+    cwd: Path = None
 
     def add_arg(self, opt: str, arg):
         self.configs.args[opt] = arg

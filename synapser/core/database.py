@@ -15,12 +15,16 @@ class Signal(Base):
     __tablename__ = 'signal'
 
     id = Column(Integer, primary_key=True)
+    arg = Column('arg', String, nullable=False)
     url = Column('url', String, nullable=False)
     data = Column('data', String, nullable=False)
     placeholders = Column('placeholders', String, nullable=False)
 
     def decoded(self) -> Tuple[dict, dict]:
         return json.loads(base64.b64decode(self.data).decode()), json.loads(base64.b64decode(self.placeholders).decode())
+
+    def __str__(self):
+        return f"{self.id} {self.arg} {self.url}"
 
 
 class Instance(Base):

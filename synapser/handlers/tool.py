@@ -46,7 +46,8 @@ class ToolHandler(CommandHandler):
 
     def dispatch(self, rid: int, repair_cmd: RepairCommand, repair_request: RepairRequest):
         ws_data = WebSocketData(path=repair_cmd.configs.full_path, args=repair_cmd.to_list(),
-                                cwd=str(repair_request.working_dir),  timeout=repair_request.timeout)
+                                cwd=repair_cmd.cwd if repair_cmd.cwd else str(repair_request.working_dir),
+                                timeout=repair_request.timeout)
         factory = WebSocketProcessFactory(ws_data=ws_data, finish=self.finish, rid=rid, logger=self.app.log)
         self.app.db.update(Instance, rid, 'socket', factory.listener.getHost().port)
         factory.run()
