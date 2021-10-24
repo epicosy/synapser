@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 from synapser.core.data.api import RepairRequest
 from synapser.core.data.configs import ToolConfigs
 from synapser.core.data.results import CommandData, Patch, WebSocketData, RepairCommand
-from synapser.core.database import Instance
+from synapser.core.database import Instance, Signal
 from synapser.core.websockets import WebSocketProcessFactory
 from synapser.handlers.command import CommandHandler
 
@@ -28,6 +28,10 @@ class ToolHandler(CommandHandler):
 
     @abstractmethod
     def help(self) -> CommandData:
+        pass
+
+    @abstractmethod
+    def parse_extra(self, extra_args: List[str], signal: Signal) -> str:
         pass
 
     def get_diff(self, original: Path, patch: Path) -> str:

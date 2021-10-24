@@ -5,6 +5,7 @@ from typing import List, Any, Dict
 
 from synapser.core.data.api import RepairRequest
 from synapser.core.data.results import CommandData, RepairCommand
+from synapser.core.database import Signal
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
@@ -56,6 +57,9 @@ class GenProg(ToolHandler):
                         patches[tf][d.name] = patch.change
 
         return patches
+
+    def parse_extra(self, extra_args: List[str], signal: Signal) -> str:
+        return ""
 
 
 def load(nexus):
