@@ -1,6 +1,6 @@
 mut_apr:
   program: "modify"
-  path: "/home/epicosy/thesis/implementation/repair/SecureThemAll/repair_tools/mut-aprfl"
+  path: "/opt/mutapr"
   args:
     --mut: 0.01
     --seed: 1
