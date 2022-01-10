@@ -53,8 +53,8 @@ log.colorlog:
 ### The maximun number of log files to maintain when rotating
   max_files: 4
 
-plugins.tool.mut_apr:
+plugins.tool.genprog:
   enabled: true
 
-plugins.tool.genprog:
+plugins.tool.mut_apr:
   enabled: false

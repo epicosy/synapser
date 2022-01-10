@@ -1,6 +1,7 @@
 mut_apr:
   program: "modify"
   path: "/opt/mutapr"
+  help: '--help'
   args:
     --mut: 0.01
     --seed: 1
@@ -15,4 +16,4 @@ mut_apr:
       args:
         --fl: "Ochiai"
   sanity_check: false
-  fault_localization: true
+  fault_loc: true

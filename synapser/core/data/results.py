@@ -3,7 +3,7 @@ from typing import AnyStr, List, Union
 from dataclasses import dataclass
 from datetime import datetime
 
-from synapser.core.data.configs import ToolConfigs
+from synapser.core.data.schema import ToolConfigs
 from synapser.utils.misc import args_to_list
 
 
@@ -25,7 +25,7 @@ class Patch:
 class ProcessData:
     args: Union[AnyStr, List] = None
     path: str = ""
-    timeout: int = 30
+    timeout: int = 60
     pid: int = None
     return_code: int = 0
     duration: float = 0

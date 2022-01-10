@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import List, Any, Dict
 
 from synapser.core.data.api import RepairRequest, CoverageRequest
-from synapser.core.data.configs import ToolConfigs
 from synapser.core.data.results import CommandData, RepairCommand
 from synapser.core.database import Signal
 from synapser.handlers.tool import ToolHandler
@@ -25,12 +24,6 @@ class MUTAPR(ToolHandler):
                             '--good': '(\d{5}-good)'
                             }
 
-    def help(self) -> CommandData:
-        tool_configs = self.get_configs()
-        tool_configs.add_arg('--help', '')
-        return super().__call__(cmd_data=CommandData(path=tool_configs.full_path, args=tool_configs.to_list(),
-                                                     timeout=100))
-
     def repair(self, signals: dict, repair_request: RepairRequest) -> RepairCommand:
         # manifest_file = repair_request.working_dir / 'manifest.txt'
         repair_dir = Path(repair_request.working_dir, "repair")
@@ -39,13 +32,13 @@ class MUTAPR(ToolHandler):
         repair_dir.mkdir(parents=True, exist_ok=True)
         repair_cwd.mkdir(parents=True, exist_ok=True)
 
-        repair_command = RepairCommand(configs=self.get_configs(), cwd=repair_cwd)
-        repair_command.add_arg("", str(repair_request.build_dir / target_file))
+        self.repair_cmd.cwd = repair_cwd
+        self.repair_cmd.add_arg("", str(repair_request.build_dir / target_file))
 
         for opt, arg in signals.items():
-            repair_command.add_arg(opt=opt, arg=f"{arg} --prefix {repair_cwd}")
+            self.repair_cmd.add_arg(opt=opt, arg=f"{arg} --prefix {repair_cwd}")
 
-        return repair_command
+        return self.repair_cmd
 
     def get_patches(self, working_dir: str, target_files: List[str], **kwargs) -> Dict[str, Any]:
         patches = {}
@@ -57,7 +50,7 @@ class MUTAPR(ToolHandler):
 
         return patches
 
-    def _instrument(self, coverage_request: CoverageRequest, configs: ToolConfigs) -> List[str]:
+    def _instrument(self, coverage_request: CoverageRequest) -> List[str]:
         inst_path = coverage_request.working_dir / "instrument"
         inst_path.mkdir(parents=True, exist_ok=True)
         inst_files = []
@@ -70,13 +63,13 @@ class MUTAPR(ToolHandler):
                 out_path.mkdir()
 
             out_file = out_path / file.name
-            args = ' '.join([f"{opt} {arg}" for opt, arg in configs.sections["coverage"]["args"].items()])
-            program = Path(configs.path) / configs.sections["coverage"]["program"]
+            args = ' '.join([f"{opt} {arg}" for opt, arg in self.configs.sections["coverage"]["args"].items()])
+            program = Path(self.configs.path) / self.configs.sections["coverage"]["program"]
 
             with out_file.open(mode="w") as inst_file:
                 cmd_data = super().__call__(
                     cmd_data=CommandData(args=f"{program} {args} {coverage_request.build_dir / file}"),
-                    cmd_cwd=configs.path)
+                    cmd_cwd=self.configs.path)
 
                 if cmd_data.error:
                     continue
@@ -89,7 +82,7 @@ class MUTAPR(ToolHandler):
         return inst_files
 
     def coverage(self, signals: dict, coverage_request: CoverageRequest):
-        inst_files = self._instrument(coverage_request, configs=self.get_configs())
+        inst_files = self._instrument(coverage_request)
 
         if inst_files:
             signals['compile'] = signals['compile'].replace("__INST_FILES__", ' '.join(inst_files))

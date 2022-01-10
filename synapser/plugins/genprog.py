@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Any, Dict
 
 from synapser.core.data.api import RepairRequest
-from synapser.core.data.results import CommandData, RepairCommand
+from synapser.core.data.results import RepairCommand
 from synapser.core.database import Signal
 from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
@@ -17,27 +17,20 @@ class GenProg(ToolHandler):
         label = 'genprog'
         version = 'e720256'
 
-    def help(self) -> CommandData:
-        tool_configs = self.get_configs()
-        tool_configs.add_arg('--help', '')
-        return super().__call__(cmd_data=CommandData(path=tool_configs.full_path, args=tool_configs.to_list(),
-                                                     timeout=100))
-
     def repair(self, signals: dict, repair_request: RepairRequest) -> RepairCommand:
         manifest_file = repair_request.working_dir / 'manifest.txt'
-        repair_command = RepairCommand(configs=self.get_configs())
-
+        
         with manifest_file.open(mode='w') as mf:
             mf.write('\n'.join(repair_request.manifest))
 
-        repair_command.add_arg(opt='--program', arg=str(manifest_file))
-        repair_command.add_arg(opt='--prefix', arg=str(repair_request.build_dir))
-        repair_command.add_arg(opt='--rep', arg="cilpatch" if len(repair_request.manifest) > 1 else "c")
+        self.repair_cmd.add_arg(opt='--program', arg=str(manifest_file))
+        self.repair_cmd.add_arg(opt='--prefix', arg=str(repair_request.build_dir))
+        self.repair_cmd.add_arg(opt='--rep', arg="cilpatch" if len(repair_request.manifest) > 1 else "c")
 
         for opt, arg in signals.items():
-            repair_command.add_arg(opt=opt, arg=arg)
+            self.repair_cmd.add_arg(opt=opt, arg=arg)
 
-        return repair_command
+        return self.repair_cmd
 
     def get_patches(self, working_dir: str, target_files: List[str], **kwargs) -> Dict[str, Any]:
         dirs = [p for p in Path(working_dir).iterdir()]
@@ -59,6 +52,9 @@ class GenProg(ToolHandler):
         return patches
 
     def parse_extra(self, extra_args: List[str], signal: Signal) -> str:
+        """
+            Parses extra arguments in the signals.
+        """
         return ""
 
 

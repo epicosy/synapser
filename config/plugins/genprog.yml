@@ -1,6 +1,7 @@
 genprog:
   program: "genprog"
   path: "/opt/genprog/bin"
+  help: '--help'
   args:
     --search: "ga"
     --crossover: "subset"
@@ -19,4 +20,4 @@ genprog:
     --generations: "10"
     --allow-coverage-fail: ""
   sanity_check: true
-  fault_localization: true
+  fault_loc: true
