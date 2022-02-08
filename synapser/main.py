@@ -9,6 +9,7 @@ from synapser.handlers.api import SignalHandler
 from synapser.handlers.plugin import PluginLoader
 from .core.exc import SynapserError
 from .controllers.base import Base
+from .controllers.plugin import Plugin
 
 
 class Synapser(App):
@@ -49,7 +50,7 @@ class Synapser(App):
 
         # register handlers
         handlers = [
-            Base, CommandHandler, PluginLoader, InstanceHandler, SignalHandler
+            Base, CommandHandler, PluginLoader, InstanceHandler, SignalHandler, Plugin
         ]
 
     def get_config(self, key: str):

@@ -20,6 +20,12 @@ class PluginLoader(CementPluginHandler):
     def tool(self, name: str):
         self._tool = name
 
+    def check(self, name: str, path: str):
+        """
+            Checks if plugin can be loaded
+        """
+        return super()._load_plugin_from_dir(name, path)
+
     def _setup(self, app_obj):
         super()._setup(app_obj)
 

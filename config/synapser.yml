@@ -7,10 +7,10 @@ synapser:
   debug: false
 
 ### Where external (third-party) plugins are loaded from
-  plugin_dir: /var/lib/synapser/plugins/
+  plugin_dir: ~/.synapser/plugins/
 
 ### Where all plugin configurations are loaded from
-  plugin_config_dir: /etc/synapser/plugins.d/
+  plugin_config_dir: ~/.synapser/config/plugins.d/
 
 ### Where external templates are loaded from
 # template_dir: /var/lib/synapser/templates/
@@ -22,12 +22,13 @@ synapser:
   output_handler: jinja2
 
 ### Database configs
-  dialect: 'postgresql'
-  username: 'synapser'
-  password: 'synapser123'
-  host: 'localhost'
-  port: '5432'
-  database: 'synapser'
+  database:
+    dialect: 'postgresql'
+    username: 'synapser'
+    password: 'synapser123'
+    host: 'localhost'
+    port: '5432'
+    name: 'synapser'
 
 
 log.colorlog:
