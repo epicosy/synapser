@@ -90,9 +90,10 @@ class SignalHandler(HandlersInterface, Handler):
                 data['args'][placeholders[k]] = v
 
         try:
+            self.app.log.debug(f"POST {signal.url}: {data}")
             response = requests.post(signal.url, json=data)
-            with open('/tmp/response.txt', mode="a") as of:
-                of.write(f"{response.json()} {signal} \n")
+            #with open('/tmp/response.txt', mode="a") as of:
+            #    of.write(f"{response.json()} {signal} \n")
             check_response(response)
             return int(response.json()['return_code']) == 0
         except SynapserError as se:
