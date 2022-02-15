@@ -90,8 +90,6 @@ class SignalHandler(HandlersInterface, Handler):
                 data['args'][placeholders[k]] = v
 
         try:
-            data.update(data['args'])
-            del data['args']
             self.app.log.debug(f"POST {signal.url}: {data}")
             response = requests.post(signal.url, json=data)
             #with open('/tmp/response.txt', mode="a") as of:
