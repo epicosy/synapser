@@ -1,0 +1,7 @@
+arja:
+  program: "arja.sh"
+  path: "/Users/cuong/Research/securethemall/repair_tools"
+  args:
+    -DdiffFormat: "true"
+    -DtestFiltered: "false"
+    -Dseed: "0"

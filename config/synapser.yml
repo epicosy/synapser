@@ -6,6 +6,9 @@ synapser:
 ### Toggle application level debug (does not toggle framework debugging)
   debug: false
 
+### Set port for the API webserver
+  api_port: 8081
+
 ### Where external (third-party) plugins are loaded from
   plugin_dir: ~/.synapser/plugins/
 
@@ -55,7 +58,10 @@ log.colorlog:
   max_files: 4
 
 plugins.tool.genprog:
-  enabled: true
+  enabled: false
 
 plugins.tool.mut_apr:
   enabled: false
+
+plugins.tool.arja:
+  enabled: true
