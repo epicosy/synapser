@@ -6,9 +6,6 @@ synapser:
 ### Toggle application level debug (does not toggle framework debugging)
   debug: false
 
-### Set port for the API webserver
-  api_port: 8081
-
 ### Where external (third-party) plugins are loaded from
   plugin_dir: ~/.synapser/plugins/
 
