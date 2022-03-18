@@ -14,14 +14,21 @@ from synapser.core.interfaces import HandlersInterface
 def check_response(response: Response):
     try:
         response_json = response.json()
+        response_error = None
 
-        if not response_json:
-            raise SynapserError(f'API request to {response.url} returned empty response.')
+        if not response_json: raise SynapserError(f'API request to {response.url} returned empty response.')
 
-        response_error = response_json.get('error', None)
+        if isinstance(response_json, list):
+            for r in response_json:
+                if isinstance(r, dict):
+                    response_error = r.get('error', None)
+                    if response_error:
+                        break
 
         if response_error:
             raise SynapserError(f"API request to {response.url} failed. {response_error}")
+
+        return response_json
 
     except json.decoder.JSONDecodeError:
         pass
@@ -52,7 +59,7 @@ class SignalHandler(HandlersInterface, Handler):
     def save(self, arg: str, url: str, data: dict, placeholders: dict) -> Tuple[int, str]:
         placeholders_wrapper = {}
         placeholders_arg = ""
-
+        self.app.log.info(f"DATA: {data}")
         for i, (k, v) in enumerate(placeholders.items(), 1):
             placeholders_wrapper[f"p{i}"] = k
             placeholders_arg += f" p{i}:{v}"
@@ -92,10 +99,27 @@ class SignalHandler(HandlersInterface, Handler):
         try:
             self.app.log.debug(f"POST {signal.url}: {data}")
             response = requests.post(signal.url, json=data)
-            #with open('/tmp/response.txt', mode="a") as of:
-            #    of.write(f"{response.json()} {signal} \n")
-            check_response(response)
-            return int(response.json()['return_code']) == 0
+            response_json = check_response(response)
+
+            if isinstance(response_json, list):
+                for r in response_json:
+                    exit_status = int(r.get('exit_status', 255))
+                    passed = r.get('passed', False)
+
+                    if exit_status != 0:
+                        return False
+                    if 'test' in signal.url and not passed:
+                        return False
+                return True
+
+            exit_status = int(response_json.get('exit_status', 255))
+            passed = response_json.get('passed', False)
+
+            if 'test' in signal.url and not passed:
+                return False
+
+            return exit_status == 0
+
         except SynapserError as se:
             self.app.log.error(str(se))
             return False
