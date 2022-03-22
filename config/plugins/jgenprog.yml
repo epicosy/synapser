@@ -1,7 +1,10 @@
 jgenprog:
   program: "jgenprog.sh"
-  path: "/Users/cuong/Research/securethemall/repair_tools"
+  path: "/Users/cuong/PycharmProjects/APRPlatform/astor"
   args:
-    -DdiffFormat: "true"
-    -DtestFiltered: "false"
-    -Dseed: "0"
+    -maxgen: "1000000"
+    -maxtime: "120"
+    -stopfirst: "true"
+    -seed: "0"
+    -scope: "local"
+    -population: "1"
