@@ -16,8 +16,14 @@ class InstanceHandler(HandlersInterface, Handler):
         tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
         signal_cmds = signal_handler.get_commands(signals)
-        file, locs = next(iter( repair_request.manifest.items() ))
-        rid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, target=file,
+        # There might a mistake here, require_request.manifest is defined as a List,
+        # which does provide the items() method
+        #file, locs = next(iter( repair_request.manifest.items() ))
+        #rid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, target=file,
+        #                               path=str(repair_request.working_dir)))
+
+        # replace the above stmts with this working one
+        rid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, target="",
                                        path=str(repair_request.working_dir)))
 
         repair_cmd = tool_handler.repair(signals=signal_cmds, repair_request=repair_request)
