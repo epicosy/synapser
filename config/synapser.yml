@@ -10,10 +10,10 @@ synapser:
   api_port: 8081
 
 ### Where external (third-party) plugins are loaded from
-  plugin_dir: ~/.synapser/plugins/
+  plugin_dir: /var/lib/plugins/
 
 ### Where all plugin configurations are loaded from
-  plugin_config_dir: ~/.synapser/config/plugins.d/
+  plugin_config_dir: /etc/synapser/config/plugins.d/
 
 ### Where external templates are loaded from
 # template_dir: /var/lib/synapser/templates/
@@ -63,5 +63,5 @@ plugins.tool.genprog:
 plugins.tool.mut_apr:
   enabled: false
 
-plugins.tool.arja:
+plugins.tool.jgenprog:
   enabled: true

@@ -11,11 +11,11 @@ from synapser.handlers.tool import ToolHandler
 from synapser.utils.misc import match_patches
 
 
-class Arja(ToolHandler):
-    """GenProg"""
+class JGenProg(ToolHandler):
+    """JGenProg"""
 
     class Meta:
-        label = 'arja'
+        label = 'jgenprog'
         version = 'xyz'
 
     def repair(self, signals: dict, repair_request: RepairRequest) -> RepairCommand:
@@ -109,4 +109,4 @@ class Arja(ToolHandler):
 
 
 def load(nexus):
-    nexus.handler.register(Arja)
+    nexus.handler.register(JGenProg)

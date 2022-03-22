@@ -1,5 +1,5 @@
-arja:
-  program: "arja.sh"
+jgenprog:
+  program: "jgenprog.sh"
   path: "/Users/cuong/Research/securethemall/repair_tools"
   args:
     -DdiffFormat: "true"
