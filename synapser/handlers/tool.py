@@ -34,7 +34,8 @@ class ToolHandler(CommandHandler):
             :param str cmd: name of the arg the tool calls as command
             :return: instantiated handler
         """
-        api_cmd = self.get_configs()['api_cmds'][cmd]
+        configs = self.get_configs()
+        api_cmd = configs.api_cmds[cmd]
         api_handler = self._api_handlers[api_cmd]
         self.app.handler.register(api_handler)
 
