@@ -16,7 +16,8 @@ def check_response(response: Response):
         response_json = response.json()
         response_error = None
 
-        if not response_json: raise SynapserError(f'API request to {response.url} returned empty response.')
+        if not response_json:
+            raise SynapserError(f'API request to {response.url} returned empty response.')
 
         if isinstance(response_json, list):
             for r in response_json:
@@ -73,7 +74,7 @@ class SignalHandler(HandlersInterface, Handler):
     def load(self, sid: int) -> Signal:
         return self.app.db.query(Signal, sid)
 
-    def transmit(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> bool:
+    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[Signal, dict, dict]:
         signal = self.load(sid)
         data, placeholders = signal.decoded()
 
@@ -96,30 +97,64 @@ class SignalHandler(HandlersInterface, Handler):
 
                 data['args'][placeholders[k]] = v
 
-        try:
-            self.app.log.debug(f"POST {signal.url}: {data}")
-            response = requests.post(signal.url, json=data)
-            response_json = check_response(response)
+        return signal, data, placeholders
 
-            if isinstance(response_json, list):
-                for r in response_json:
-                    exit_status = int(r.get('exit_status', 255))
-                    passed = r.get('passed', False)
 
-                    if exit_status != 0:
-                        return False
-                    if 'test' in signal.url and not passed:
-                        return False
-                return True
+class APIHandler(HandlersInterface, Handler):
+    class Meta:
+        label = 'api'
 
+    def __call__(self, url: str, json_data: dict, *args, **kwargs) -> dict:
+        self.app.log.debug(f"POST {url}: {json_data}")
+        response = requests.post(url, json=json_data)
+        return check_response(response)
+
+
+class BuildAPIHandler(APIHandler):
+    class Meta:
+        label = 'build_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> bool:
+        response_json = super().__call__(signal.url, data)
+
+        if isinstance(response_json, list):
+            for r in response_json:
+                exit_status = int(r.get('exit_status', 255))
+
+                if exit_status != 0:
+                    return False
+
+            return True
+        else:
+            exit_status = int(response_json.get('exit_status', 255))
+
+        return exit_status == 0
+
+
+class TestAPIHandler(APIHandler):
+    class Meta:
+        label = 'test_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> bool:
+        response_json = super().__call__(signal.url, data)
+
+        if isinstance(response_json, list):
+            for r in response_json:
+                exit_status = int(r.get('exit_status', 255))
+                passed = r.get('passed', False)
+
+                if exit_status != 0:
+                    return False
+
+                if not passed:
+                    return False
+
+            return True
+        else:
             exit_status = int(response_json.get('exit_status', 255))
             passed = response_json.get('passed', False)
 
-            if 'test' in signal.url and not passed:
-                return False
-
-            return exit_status == 0
-
-        except SynapserError as se:
-            self.app.log.error(str(se))
+        if not passed:
             return False
+
+        return exit_status == 0
