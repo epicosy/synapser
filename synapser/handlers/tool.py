@@ -27,14 +27,15 @@ class ToolHandler(CommandHandler):
             'test': TestAPIHandler
         }
 
-    def register(self, arg: str) -> APIHandler:
+    def register(self, cmd: str) -> APIHandler:
         """
             Registers and inits API handler
 
-            :param str arg: name of the arg the tool calls as command
+            :param str cmd: name of the arg the tool calls as command
             :return: instantiated handler
         """
-        api_handler = self._api_handlers[arg]
+        api_cmd = self.get_configs()['api_cmds'][cmd]
+        api_handler = self._api_handlers[api_cmd]
         self.app.handler.register(api_handler)
 
         return self.app.handler.get('handlers', api_handler.Meta.label, setup=True)
