@@ -7,7 +7,7 @@ from cement import Handler
 from requests import Response
 
 from synapser.core.database import Signal
-from synapser.core.exc import SynapserError
+from synapser.core.exc import SynapserError, CommandError
 from synapser.core.interfaces import HandlersInterface
 
 
@@ -80,22 +80,29 @@ class SignalHandler(HandlersInterface, Handler):
 
         if placeholders_wrapper:
             # get filled placeholders
+            parsed_extra_args = {}
+
+            if extra_args:
+                try:
+                    tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
+                    # parse extra arguments added by the tool
+                    parsed_extra_args = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
+                except (ValueError, CommandError) as e:
+                    self.app.log.error(e)
+
             for p in placeholders_wrapper:
                 # match with original arguments
                 try:
                     k, v = p.split(':')
 
-                    if "__EXTRA__" in v:
-                        # parse extra arguments added by the tool
-                        if extra_args:
-                            tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
-                            v = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
+                    if v in parsed_extra_args:
+                        data['args'][placeholders[k]] = parsed_extra_args[v]
+                    elif k in placeholders:
+                        data['args'][placeholders[k]] = v
 
-                except ValueError as ve:
-                    self.app.log.error(ve)
+                except (ValueError, CommandError) as e:
+                    self.app.log.error(e)
                     continue
-
-                data['args'][placeholders[k]] = v
 
         return signal, data, placeholders
 
