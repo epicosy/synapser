@@ -34,6 +34,7 @@ class ProcessProtocol(protocol.ProcessProtocol):
         self.buffer = []
 
     def outReceived(self, message):
+        print("Error: %s" % message)
         self.ws.broadcast(message)
         self.buffer.append(message)
         # Last 10 messages please
