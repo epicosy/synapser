@@ -82,6 +82,8 @@ class SignalHandler(HandlersInterface, Handler):
             # get filled placeholders
             parsed_extra_args = {}
 
+            extra_args = [p for p in placeholders_wrapper if len(p.split(':')) != 2] + (extra_args if extra_args else [])
+
             if extra_args:
                 try:
                     tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
