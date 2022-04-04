@@ -1,6 +1,6 @@
 jgenprog:
   program: "astor.sh"
-  path: "/Users/cuong/PycharmProjects/APRPlatform/astor"
+  path: "/opt/astor"
   args:
     -mode: "jmutrepair"
     -maxgen: "1000000"
