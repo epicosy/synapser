@@ -57,7 +57,7 @@ log.colorlog:
 ### The maximun number of log files to maintain when rotating
   max_files: 4
 
-plugins.tool.jgenprog:
+plugins.tool.jkali:
   enabled: true
 
 plugins.tool.genprog:

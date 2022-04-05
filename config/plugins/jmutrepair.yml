@@ -1,4 +1,4 @@
-jgenprog:
+jmutrepair:
   program: "astor.sh"
   path: "/opt/astor"
   args:

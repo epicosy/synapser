@@ -1,4 +1,4 @@
-jgenprog:
+jkali:
   program: "astor.sh"
   path: "/opt/astor"
   args:
