@@ -10,10 +10,10 @@ synapser:
   api_port: 8080
 
 ### Where external (third-party) plugins are loaded from
-  plugin_dir: ~/.synapser/plugins/
+  plugin_dir: /var/lib/synapser/plugins/
 
 ### Where all plugin configurations are loaded from
-  plugin_config_dir: ~/.synapser/config/plugins.d/
+  plugin_config_dir: /etc/synapser/plugins.d/
 
 ### Where external templates are loaded from
 # template_dir: /var/lib/synapser/templates/
