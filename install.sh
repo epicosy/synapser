@@ -13,10 +13,12 @@ pip3 install . 2>&1
 su -l postgres -c "/etc/init.d/postgresql start && psql --command \"CREATE USER synapser WITH SUPERUSER PASSWORD 'synapser123';\" && createdb synapser" 2>&1
 
 #Configs
-config_path="/etc/synapser"
-config_plugin_path="/etc/synapser/plugins.d"
-plugins_path="/var/lib/synapser/plugins/tool"
-mkdir -p $config_path && cp "config/synapser.yml" $config_path
-mkdir -p $config_plugin_path && cp -a "config/plugins/." $config_plugin_path
-mkdir -p $plugins_path && cp -a "synapser/plugins/." $plugins_path
+mkdir -p ~/.synapser/config/plugins.d && mkdir -p ~/.synapser/plugins && cp config/synapser.yml ~/.synapser/config/
 [[ $? -eq 1 ]] && echo "[Error] Failed to install synapser configs." && exit 1 ;
+echo "[Success] Created default configuration file paths."
+
+synapser plugin install -d $SYNAPSER_PLUGIN_PATH 2>&1
+[[ $? -eq 1 ]] && echo "[Error] Failed to install plugin." && exit 1 ;
+
+echo "[Success] Installed $SYNAPSER_PLUGIN_PATH plugin."
+exit 0
