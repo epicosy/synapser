@@ -7,7 +7,7 @@ from cement import Handler
 from requests import Response
 
 from synapser.core.database import Signal
-from synapser.core.exc import SynapserError
+from synapser.core.exc import SynapserError, CommandError
 from synapser.core.interfaces import HandlersInterface
 
 
@@ -16,7 +16,8 @@ def check_response(response: Response):
         response_json = response.json()
         response_error = None
 
-        if not response_json: raise SynapserError(f'API request to {response.url} returned empty response.')
+        if not response_json:
+            raise SynapserError(f'API request to {response.url} returned empty response.')
 
         if isinstance(response_json, list):
             for r in response_json:
@@ -73,53 +74,96 @@ class SignalHandler(HandlersInterface, Handler):
     def load(self, sid: int) -> Signal:
         return self.app.db.query(Signal, sid)
 
-    def transmit(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> bool:
+    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[Signal, dict, dict]:
         signal = self.load(sid)
         data, placeholders = signal.decoded()
 
         if placeholders_wrapper:
             # get filled placeholders
+            parsed_extra_args = {}
+
+            extra_args = [p for p in placeholders_wrapper if len(p.split(':')) != 2] + (extra_args if extra_args else [])
+
+            if extra_args:
+                try:
+                    tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
+                    # parse extra arguments added by the tool
+                    parsed_extra_args = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
+                except (ValueError, CommandError) as e:
+                    self.app.log.error(e)
+
             for p in placeholders_wrapper:
                 # match with original arguments
                 try:
                     k, v = p.split(':')
 
-                    if "__EXTRA__" in v:
-                        # parse extra arguments added by the tool
-                        if extra_args:
-                            tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
-                            v = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
+                    if v in parsed_extra_args:
+                        data['args'][placeholders[k]] = parsed_extra_args[v]
+                    elif k in placeholders:
+                        data['args'][placeholders[k]] = v
 
-                except ValueError as ve:
-                    self.app.log.error(ve)
+                except (ValueError, CommandError) as e:
+                    self.app.log.error(e)
                     continue
 
-                data['args'][placeholders[k]] = v
+        return signal, data, placeholders
 
-        try:
-            self.app.log.debug(f"POST {signal.url}: {data}")
-            response = requests.post(signal.url, json=data)
-            response_json = check_response(response)
 
-            if isinstance(response_json, list):
-                for r in response_json:
-                    exit_status = int(r.get('exit_status', 255))
-                    passed = r.get('passed', False)
+class APIHandler(HandlersInterface, Handler):
+    class Meta:
+        label = 'api'
 
-                    if exit_status != 0:
-                        return False
-                    if 'test' in signal.url and not passed:
-                        return False
-                return True
+    def __call__(self, url: str, json_data: dict, *args, **kwargs) -> dict:
+        self.app.log.debug(f"POST {url}: {json_data}")
+        response = requests.post(url, json=json_data)
+        return check_response(response)
 
+
+class BuildAPIHandler(APIHandler):
+    class Meta:
+        label = 'build_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> bool:
+        response_json = super().__call__(signal.url, data)
+
+        if isinstance(response_json, list):
+            for r in response_json:
+                exit_status = int(r.get('exit_status', 255))
+
+                if exit_status != 0:
+                    return False
+
+            return True
+        else:
+            exit_status = int(response_json.get('exit_status', 255))
+
+        return exit_status == 0
+
+
+class TestAPIHandler(APIHandler):
+    class Meta:
+        label = 'test_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> bool:
+        response_json = super().__call__(signal.url, data)
+
+        if isinstance(response_json, list):
+            for r in response_json:
+                exit_status = int(r.get('exit_status', 255))
+                passed = r.get('passed', False)
+
+                if exit_status != 0:
+                    return False
+
+                if not passed:
+                    return False
+
+            return True
+        else:
             exit_status = int(response_json.get('exit_status', 255))
             passed = response_json.get('passed', False)
 
-            if 'test' in signal.url and not passed:
-                return False
-
-            return exit_status == 0
-
-        except SynapserError as se:
-            self.app.log.error(str(se))
+        if not passed:
             return False
+
+        return exit_status == 0

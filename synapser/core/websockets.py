@@ -34,6 +34,7 @@ class ProcessProtocol(protocol.ProcessProtocol):
         self.buffer = []
 
     def outReceived(self, message):
+        print("Error: %s" % message)
         self.ws.broadcast(message)
         self.buffer.append(message)
         # Last 10 messages please
@@ -50,11 +51,13 @@ class ProcessProtocol(protocol.ProcessProtocol):
         # self.transport.closeStdout()
 
     def processExited(self, reason):
-        print("processExited, status %d" % (reason.value.exitCode,))
+        if reason.value.exitCode:
+            print("processExited, status %d" % (reason.value.exitCode,))
         self.transport.closeStdin()
 
     def processEnded(self, reason):
-        print("processEnded, status %d" % (reason.value.exitCode,))
+        if reason.value.exitCode:
+            print("processEnded, status %d" % (reason.value.exitCode,))
         print("quitting")
         self.transport.loseConnection()
         self.ws.reactor.callFromThread(self.ws.reactor.stop)

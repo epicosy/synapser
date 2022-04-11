@@ -7,6 +7,7 @@ from synapser.core.data.results import CommandData, Patch, WebSocketData, Repair
 from synapser.core.data.schema import parse_configs
 from synapser.core.database import Instance, Signal
 from synapser.core.websockets import WebSocketProcessFactory
+from synapser.handlers.api import BuildAPIHandler, TestAPIHandler, APIHandler
 from synapser.handlers.command import CommandHandler
 
 
@@ -21,6 +22,24 @@ class ToolHandler(CommandHandler):
         super().__init__(**kw)
         self._repair_cmd = None
         self._configs = None
+        self._api_handlers = {
+            'build': BuildAPIHandler,
+            'test': TestAPIHandler
+        }
+
+    def register(self, cmd: str) -> APIHandler:
+        """
+            Registers and inits API handler
+
+            :param str cmd: name of the arg the tool calls as command
+            :return: instantiated handler
+        """
+        configs = self.get_configs()
+        api_cmd = configs.api_cmds[cmd]
+        api_handler = self._api_handlers[api_cmd]
+        self.app.handler.register(api_handler)
+
+        return self.app.handler.get('handlers', api_handler.Meta.label, setup=True)
 
     def get_configs(self):
         """

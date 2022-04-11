@@ -13,6 +13,7 @@ class ToolConfigs:
     name: str
     program: str
     path: str
+    api_cmds: dict = field(default_factory=lambda: {})
     args: dict = field(default_factory=lambda: {})
     sections: dict = field(default_factory=lambda: {})
     help: str = None
@@ -54,6 +55,7 @@ def parse_configs(name: str, yaml: dict) -> ToolConfigs:
     sections = Schema(And({str: {'program': str, Optional('args', default={}): dict}}))
 
     return Schema(And({'program': str, 'path': str, Optional('args', default={}): dict,
-                       Optional('sections', default={}): sections, Optional('sanity_check', default=False): bool,
-                       Optional('fault_loc', default=False): bool, Optional('help', default=None): str},
+                       Optional('api_cmds', default={}): dict, Optional('sections', default={}): sections,
+                       Optional('sanity_check', default=False): bool, Optional('fault_loc', default=False): bool,
+                       Optional('help', default=None): str},
                       Use(lambda tc: ToolConfigs(name=name, **tc)))).validate(yaml)
