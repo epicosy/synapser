@@ -62,12 +62,12 @@ class Base(Controller):
     )
     def signal(self):
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
-        signal, data, _ = signal_handler.parse(self.app.pargs.id, self.app.pargs.placeholders, self._parser.unknown_args)
+        signal, data, _, params = signal_handler.parse(self.app.pargs.id, self.app.pargs.placeholders, self._parser.unknown_args)
         tool_handler = self.app.handler.get('handlers', self.app.plugin.tool, setup=True)
         api_handler = tool_handler.register(signal.arg)
 
         try:
-            if not api_handler(signal, data):
+            if not api_handler(signal, data, **params):
                 exit(1)
         except SynapserError as se:
             self.app.log.error(str(se))

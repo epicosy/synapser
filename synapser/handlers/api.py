@@ -49,7 +49,7 @@ class SignalHandler(HandlersInterface, Handler):
 
         for arg, signal in signals.items():
             sid, placeholders = self.save(arg=arg, url=signal['url'], data=signal['data'],
-                                          placeholders=signal['placeholders'])
+                                          placeholders=signal['placeholders'], params=signal['params'])
             if placeholders:
                 singal_cmds[arg] = f"synapser signal --id {sid} --placeholders {placeholders}"
             else:
@@ -57,7 +57,7 @@ class SignalHandler(HandlersInterface, Handler):
 
         return singal_cmds
 
-    def save(self, arg: str, url: str, data: dict, placeholders: dict) -> Tuple[int, str]:
+    def save(self, arg: str, url: str, data: dict, placeholders: dict, params: dict) -> Tuple[int, str]:
         placeholders_wrapper = {}
         placeholders_arg = ""
         self.app.log.info(f"DATA: {data}")
@@ -67,16 +67,17 @@ class SignalHandler(HandlersInterface, Handler):
 
         encoded_data = base64.b64encode(json.dumps(data).encode()).decode()
         encoded_placeholders = base64.b64encode(json.dumps(placeholders_wrapper).encode()).decode()
+        encoded_params = base64.b64encode(json.dumps(params).encode()).decode()
 
         return self.app.db.add(
-            Signal(arg=arg, url=url, data=encoded_data, placeholders=encoded_placeholders)), placeholders_arg
+            Signal(arg=arg, url=url, data=encoded_data, placeholders=encoded_placeholders, params=encoded_params)), placeholders_arg
 
     def load(self, sid: int) -> Signal:
         return self.app.db.query(Signal, sid)
 
-    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[Signal, dict, dict]:
+    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[Signal, dict, dict, dict]:
         signal = self.load(sid)
-        data, placeholders = signal.decoded()
+        data, placeholders, params = signal.decoded()
 
         if placeholders_wrapper:
             # get filled placeholders
@@ -106,7 +107,7 @@ class SignalHandler(HandlersInterface, Handler):
                     self.app.log.error(e)
                     continue
 
-        return signal, data, placeholders
+        return signal, data, placeholders, params
 
 
 class APIHandler(HandlersInterface, Handler):

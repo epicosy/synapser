@@ -19,9 +19,12 @@ class Signal(Base):
     url = Column('url', String, nullable=False)
     data = Column('data', String, nullable=False)
     placeholders = Column('placeholders', String, nullable=False)
+    params = Column('handler', String, nullable=False)
 
-    def decoded(self) -> Tuple[dict, dict]:
-        return json.loads(base64.b64decode(self.data).decode()), json.loads(base64.b64decode(self.placeholders).decode())
+    def decoded(self) -> Tuple[dict, dict, dict]:
+        return json.loads(base64.b64decode(self.data).decode()), \
+               json.loads(base64.b64decode(self.placeholders).decode()), \
+               json.loads(base64.b64decode(self.params).decode())
 
     def __str__(self):
         return f"{self.id} {self.arg} {self.url}"
