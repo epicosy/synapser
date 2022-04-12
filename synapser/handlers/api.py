@@ -91,7 +91,7 @@ class SignalHandler(HandlersInterface, Handler):
                     # parse extra arguments added by the tool
                     parsed_extra_args = tool_handler.parse_extra(extra_args=extra_args, signal=signal)
                 except (ValueError, CommandError) as e:
-                    self.app.log.error(e)
+                    self.app.log.error(e, __file__)
 
             for p in placeholders_wrapper:
                 # match with original arguments
@@ -104,7 +104,7 @@ class SignalHandler(HandlersInterface, Handler):
                         data['args'][placeholders[k]] = v
 
                 except (ValueError, CommandError) as e:
-                    self.app.log.error(e)
+                    self.app.log.error(e, __file__)
                     continue
 
         return signal, data, placeholders, params

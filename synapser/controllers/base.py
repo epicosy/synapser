@@ -70,7 +70,7 @@ class Base(Controller):
             if not api_handler(signal, data, **params):
                 exit(1)
         except SynapserError as se:
-            self.app.log.error(str(se))
+            self.app.log.error(str(se), __file__)
             exit(1)
 
         exit(0)
