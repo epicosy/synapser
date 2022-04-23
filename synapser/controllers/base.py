@@ -88,4 +88,5 @@ class Base(Controller):
         if instance.socket:
             connect_local_ws_process(instance.socket)
         elif instance.status == "done":
-            print("WebSocket connection closed")
+            self.app.log.info(f"Repair instance execution started at {instance.start} and terminated at {instance.end};")
+            self.app.log.info("WebSocket connection closed")

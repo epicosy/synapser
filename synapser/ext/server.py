@@ -32,7 +32,7 @@ def setup_api(app):
         instance = instance_handler.get(rid)
 
         if instance:
-            return jsonify({'socket': instance.socket, 'status': instance.status})
+            return jsonify(instance.jsonify())
 
         return {"error": f"Repair instance {rid} not found"}, 404
 

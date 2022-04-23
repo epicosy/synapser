@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from pathlib import Path
 from typing import Union, List
+from sqlalchemy.sql import func
 
 from synapser.core.data.api import RepairRequest
 from synapser.core.data.results import CommandData, Patch, WebSocketData, RepairCommand
@@ -113,6 +114,7 @@ class ToolHandler(CommandHandler):
         """
         self.app.db.update(Instance, rid, 'socket', None)
         self.app.db.update(Instance, rid, 'status', 'done')
+        self.app.db.update(Instance, rid, 'end', func.now())
         self.app.log.info(f"Repair instance {rid} finished execution.")
 
     def dispatch(self, rid: int, repair_cmd: RepairCommand, repair_request: RepairRequest):
