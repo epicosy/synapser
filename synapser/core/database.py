@@ -5,8 +5,8 @@ import contextlib
 from typing import Union, Tuple
 
 from sqlalchemy.orm import declarative_base, Session
-from sqlalchemy import Column, Integer, String, create_engine, inspect
-
+from sqlalchemy import Column, Integer, String, create_engine, inspect, DateTime
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -36,6 +36,12 @@ class Instance(Base):
     path = Column('path', String, nullable=False)
     target = Column('target', String, nullable=False)
     socket = Column('socket', Integer, nullable=True)
+    start = Column('start', DateTime(timezone=True), server_default=func.now())
+    end = Column('end', DateTime(timezone=True), nullable=True)
+
+    def jsonify(self):
+        return {'id': self.id, 'name': self.name, 'status': self.status, 'path': self.path, 'target': self.target,
+                'socket': self.socket, 'start': self.start, 'end': self.end}
 
 
 class Database:

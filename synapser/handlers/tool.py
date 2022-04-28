@@ -9,7 +9,7 @@ from synapser.core.database import Instance, Signal
 from synapser.core.websockets import WebSocketProcessFactory
 from synapser.handlers.api import BuildAPIHandler, TestAPIHandler, APIHandler
 from synapser.handlers.command import CommandHandler
-
+from sqlalchemy.sql import func
 
 class ToolHandler(CommandHandler):
     """
@@ -114,6 +114,7 @@ class ToolHandler(CommandHandler):
         self.app.db.update(Instance, rid, 'socket', None)
         self.app.db.update(Instance, rid, 'status', 'done')
         self.app.log.info(f"Repair instance {rid} finished execution.")
+        self.app.db.update(Instance, rid, 'end', func.now())
 
     def dispatch(self, rid: int, repair_cmd: RepairCommand, repair_request: RepairRequest):
         """
