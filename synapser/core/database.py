@@ -7,6 +7,7 @@ from typing import Union, Tuple
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy import Column, Integer, String, create_engine, inspect, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy_utils import create_database, database_exists
 
 Base = declarative_base()
 
@@ -34,6 +35,7 @@ class Instance(Base):
     __tablename__ = 'instance'
 
     id = Column(Integer, primary_key=True)
+    iid = Column('iid', Integer, nullable=False)
     name = Column('name', String(255), nullable=False)
     status = Column('status', String(255), nullable=False)
     path = Column('path', String, nullable=False)
@@ -43,14 +45,20 @@ class Instance(Base):
     end = Column('end', DateTime(timezone=True), nullable=True)
 
     def jsonify(self):
-        return {'id': self.id, 'name': self.name, 'status': self.status, 'path': self.path, 'target': self.target,
-                'socket': self.socket, 'start': self.start, 'end': self.end}
+        return {'id': self.id, 'iid': self.iid, 'name': self.name, 'status': self.status, 'path': self.path,
+                'target': self.target, 'socket': self.socket, 'start': self.start, 'end': self.end}
 
 
 class Database:
     def __init__(self, dialect: str, username: str, password: str, host: str, port: int, database: str,
                  debug: bool = False):
-        self.engine = create_engine(f"{dialect}://{username}:{password}@{host}:{port}/{database}", echo=debug)
+
+        self.url = f"{dialect}://{username}:{password}@{host}:{port}/{database}"
+
+        if not database_exists(self.url):
+            create_database(self.url, encoding='utf8')
+
+        self.engine = create_engine(self.url, echo=debug)
         Base.metadata.create_all(bind=self.engine)
 
     def refresh(self, entity: Base):
