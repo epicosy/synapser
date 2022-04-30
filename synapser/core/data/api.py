@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class RepairRequest:
     args: dict
+    iid: int
     manifest: List[AnyStr]
     working_dir: Path
     build_dir: Path
