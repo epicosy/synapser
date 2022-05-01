@@ -23,7 +23,7 @@ def check_response(response: Response):
             for r in response_json:
                 if isinstance(r, dict):
                     response_error = r.get('error', None)
-                    is_pov = r.get('is pov', None)
+                    is_pov = r.get('is pov', False)
 
                     if response_error:
                         # Tolerate POVs that time out
