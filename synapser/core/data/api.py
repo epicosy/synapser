@@ -18,3 +18,4 @@ class CoverageRequest:
     manifest: List[AnyStr]
     working_dir: Path
     build_dir: Path
+    iid: int
