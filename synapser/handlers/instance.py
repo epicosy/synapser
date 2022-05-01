@@ -32,7 +32,7 @@ class InstanceHandler(HandlersInterface, Handler):
         signal_handler = self.app.handler.get('handlers', 'signal', setup=True)
         signal_cmds = signal_handler.get_commands(signals)
         cid = self.app.db.add(Instance(status='running', name=self.app.plugin.tool, target=coverage_request.manifest[0],
-                                       path=str(coverage_request.working_dir)), iid=coverage_request.iid)
+                                       path=str(coverage_request.working_dir), iid=coverage_request.iid))
         tool_handler.coverage(signals=signal_cmds, coverage_request=coverage_request)
         self.app.db.update(Instance, cid, 'status', 'done')
         self.app.log.info(f"Coverage instance {cid} finished execution.")
