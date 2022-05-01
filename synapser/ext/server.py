@@ -65,7 +65,7 @@ def setup_api(app):
 
             try:
                 coverage_request = CoverageRequest(manifest=data['manifest'], working_dir=Path(data['working_dir']),
-                                                   build_dir=Path(data['build_dir']))
+                                                   build_dir=Path(data['build_dir']), iid=data['iid'])
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
                 cid = instance_handler.coverage(signals=data['signals'], coverage_request=coverage_request)
 
