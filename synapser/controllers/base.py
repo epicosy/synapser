@@ -5,6 +5,7 @@ from cement.utils.version import get_version_banner
 from ..core.exc import SynapserError
 from ..core.version import get_version
 from ..core.websockets import connect_local_ws_process
+from ..handlers.api import TestBatchAPIHandler
 
 VERSION_BANNER = """
 Automatic Program Repair API Framework %s
@@ -67,8 +68,12 @@ class Base(Controller):
         api_handler = tool_handler.register(signal.arg)
 
         try:
-            if not api_handler(signal, data):
-                exit(1)
+            if isinstance(api_handler, TestBatchAPIHandler):
+                failing_tests = api_handler(signal, data)
+                exit(0)
+            else:
+                if not api_handler(signal, data):
+                    exit(1)
         except SynapserError as se:
             self.app.log.error(str(se))
             exit(1)

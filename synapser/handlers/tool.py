@@ -7,7 +7,7 @@ from synapser.core.data.results import CommandData, Patch, WebSocketData, Repair
 from synapser.core.data.schema import parse_configs
 from synapser.core.database import Instance, Signal
 from synapser.core.websockets import WebSocketProcessFactory
-from synapser.handlers.api import BuildAPIHandler, TestAPIHandler, APIHandler
+from synapser.handlers.api import BuildAPIHandler, TestAPIHandler, APIHandler, TestBatchAPIHandler
 from synapser.handlers.command import CommandHandler
 from sqlalchemy.sql import func
 
@@ -24,7 +24,8 @@ class ToolHandler(CommandHandler):
         self._configs = None
         self._api_handlers = {
             'build': BuildAPIHandler,
-            'test': TestAPIHandler
+            'test': TestAPIHandler,
+            'testbatch': TestBatchAPIHandler
         }
 
     def register(self, cmd: str) -> APIHandler:

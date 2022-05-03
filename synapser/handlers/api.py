@@ -74,7 +74,8 @@ class SignalHandler(HandlersInterface, Handler):
     def load(self, sid: int) -> Signal:
         return self.app.db.query(Signal, sid)
 
-    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[Signal, dict, dict]:
+    def parse(self, sid: int, placeholders_wrapper: List[str], extra_args: List[str] = None) -> Tuple[
+        Signal, dict, dict]:
         signal = self.load(sid)
         data, placeholders = signal.decoded()
 
@@ -82,7 +83,8 @@ class SignalHandler(HandlersInterface, Handler):
             # get filled placeholders
             parsed_extra_args = {}
 
-            extra_args = [p for p in placeholders_wrapper if len(p.split(':')) != 2] + (extra_args if extra_args else [])
+            extra_args = [p for p in placeholders_wrapper if len(p.split(':')) != 2] + (
+                extra_args if extra_args else [])
 
             if extra_args:
                 try:
@@ -167,3 +169,21 @@ class TestAPIHandler(APIHandler):
             return False
 
         return exit_status == 0
+
+
+class TestBatchAPIHandler(APIHandler):
+    class Meta:
+        label = 'testbatch_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> str:
+        response_json = super().__call__(signal.url, data)
+
+        if isinstance(response_json, list):
+            for r in response_json:
+                failing_tests = r.get('returns', {}).get('test_results', {}).get('failing_tests', [])
+                if len(failing_tests) == 0:
+                    return ""
+                return "\n".join(failing_tests)
+            return ""
+        else:
+            return "abc.XYZ"
