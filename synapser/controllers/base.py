@@ -70,6 +70,9 @@ class Base(Controller):
         try:
             if isinstance(api_handler, TestBatchAPIHandler):
                 failing_tests = api_handler(signal, data)
+                print("#SYNAPSER#FAILINGTEST#START")
+                print(failing_tests)
+                print("#SYNAPSER#FAILINGTEST#END")
                 exit(0)
             else:
                 if not api_handler(signal, data):
