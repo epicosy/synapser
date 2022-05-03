@@ -177,13 +177,7 @@ class TestBatchAPIHandler(APIHandler):
 
     def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> str:
         response_json = super().__call__(signal.url, data)
-
-        if isinstance(response_json, list):
-            for r in response_json:
-                failing_tests = r.get('returns', {}).get('test_results', {}).get('failing_tests', [])
-                if len(failing_tests) == 0:
-                    return ""
-                return "\n".join(failing_tests)
+        failing_tests = response_json.get('returns', {}).get('test_results', {}).get('failing_tests', [])
+        if len(failing_tests) == 0:
             return ""
-        else:
-            return "abc.XYZ"
+        return "\n".join(failing_tests)
