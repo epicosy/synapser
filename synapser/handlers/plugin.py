@@ -31,17 +31,17 @@ class PluginLoader(CementPluginHandler):
 
         for section in self.app.config.get_sections():
             try:
-                _, kind, name = section.split('.')
+                kind, name = section.split('.')
 
-                if kind != 'tool':
+                if kind != 'plugins':
                     continue
 
                 try:
-                    self.load_plugin(f"{kind}/{name}")
+                    self.load_plugin(name)
                 except FrameworkError as fe:
                     raise SynapserError(str(fe))
 
-                loaded = f"{kind}/{name}" in self._loaded_plugins
+                loaded = name in self._loaded_plugins
                 enabled = 'enabled' in self.app.config.keys(section)
 
                 if loaded and enabled:
