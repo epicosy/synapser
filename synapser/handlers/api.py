@@ -22,14 +22,16 @@ def check_response(response: Response):
         if isinstance(response_json, list):
             for r in response_json:
                 if isinstance(r, dict):
-                    response_error = r.get('error', None)
+                    error = r.get('error', None)
                     is_pov = r.get('is pov', False)
 
-                    if response_error:
+                    #if response_error:
                         # Tolerate POVs that time out
-                        if is_pov and 'timed out' in response_error:
-                            continue
-                        break
+                    if is_pov and 'timed out' in error:
+                        continue
+                    break
+        else:
+            response_error = response_json.get('error', None)
 
         if response_error:
             raise SynapserError(f"API request to {response.url} failed. {response_error}")
