@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import AnyStr, List, Union
+from typing import AnyStr, List, Union, Any
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -63,8 +63,14 @@ class RepairCommand:
     configs: ToolConfigs
     cwd: Path = None
 
-    def add_arg(self, opt: str, arg):
-        self.configs.args[opt] = arg
+    def add_args(self, args: dict):
+        if isinstance(args, dict):
+            for opt, arg in args.items():
+                self.add_arg(opt, arg)
+
+    def add_arg(self, opt: str, arg: Any = None):
+        if isinstance(opt, str):
+            self.configs.args[opt] = arg
 
     def to_list(self):
         return [self.configs.program] + args_to_list(self.configs.args)

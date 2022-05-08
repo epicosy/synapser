@@ -44,9 +44,9 @@ def setup_api(app):
             try:
                 verify_bad_request(data, keys=['signals', 'timeout', 'args', 'manifest', 'working_dir', 'build_dir'],
                                    format_error="This request was not properly formatted, must specify '{}'.")
-                repair_request = RepairRequest(args=data['args'], manifest=data['manifest'], timeout=data['timeout'],
-                                               working_dir=Path(data['working_dir']), build_dir=Path(data['build_dir']),
-                                               iid=data['iid'])
+                repair_request = RepairRequest(args=data.get('args', {}), manifest=data['manifest'],
+                                               timeout=data['timeout'], working_dir=Path(data['working_dir']),
+                                               build_dir=Path(data['build_dir']), iid=data['iid'])
                 instance_handler = app.handler.get('handlers', 'instance', setup=True)
                 rid = instance_handler.dispatch(signals=data['signals'], repair_request=repair_request)
 
