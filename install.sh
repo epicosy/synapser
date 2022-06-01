@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Update the package list
+DEBIAN_FRONTEND=noninteractive apt-get update 2>&1
+
 # Setting Timezone
 DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata 2>&1
 
