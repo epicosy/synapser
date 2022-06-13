@@ -175,3 +175,15 @@ class TestAPIHandler(APIHandler):
             return False
 
         return exit_status == 0
+
+
+class TestBatchAPIHandler(APIHandler):
+    class Meta:
+        label = 'testbatch_api'
+
+    def __call__(self, signal: Signal, data: dict, *args, **kwargs) -> str:
+        response_json = super().__call__(signal.url, data)
+        failing_tests = response_json.get('returns', {}).get('test_results', {}).get('failing_tests', [])
+        if len(failing_tests) == 0:
+            return ""
+        return "\n".join(failing_tests)
