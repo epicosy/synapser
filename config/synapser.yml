@@ -7,7 +7,7 @@ synapser:
   debug: false
 
 ### Where external (third-party) plugins are loaded from
-  plugin_dir: ~/.synapser/plugins/tool
+  plugin_dir: ~/.synapser/plugins/
 
 ### Where all plugin configurations are loaded from
   plugin_config_dir: ~/.synapser/config/plugins.d/
